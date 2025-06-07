@@ -26,14 +26,14 @@ namespace Tree
         std::vector<Node*>* children; // pointer to variable length node array
 
         float total_weight; // weight of all the children nodes
-        float weight; // weight of this node (length * radius)
+        float weight; // weight of this node (approx: length * PI * radius^2)
         float radius; // radius of node (diameter / 2)
         float length; // length of node
 
         float roll; // angle in radians
         float pitch; // angle in radians
 
-        utils::Vector3 position;
+        Vector3::Vector3 position;
     };
     
     /// @brief Gets the approximate weight of a node
