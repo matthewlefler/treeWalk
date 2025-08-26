@@ -1,11 +1,20 @@
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <cstring>
+#include <optional>
 
 #pragma once
 
 namespace Renderer {
+    struct QueueFamilyIndices {
+        std::optional<uint32_t> graphicsFamily;
+
+        bool isComplete() {
+            return graphicsFamily.has_value();
+        }
+    };
     
-    class HelloTriangleApplication {
+    class VulkanApplication {
     public:
         void run();
     
@@ -27,13 +36,19 @@ namespace Renderer {
 
         VkInstance instance;
 
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        //
+        // main functions
+        //
+
         /**
          * initialyze the glfw context and create the window
          */
         void initWindow();
 
         /**
-         * initlalyze the vulkan context
+         * initalyze the vulkan context
          */
         void initVulkan(); 
 
@@ -42,12 +57,41 @@ namespace Renderer {
          */
         void createInstance();
 
+        /**
+         * picks the best physical device to use for rendering 
+         */
+        void pickPhysicalDevice();
+
+        /**
+         * is a graphics device suitable for usage 
+         */
+        bool VulkanApplication::isDeviceSuitable(VkPhysicalDevice device);
+        
+        /**
+         * find the different supported queues for a device
+         * each queue has different commands allowed to be executed 
+         */
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+        /**
+         * This is the main loop of the renderer
+         */
         void mainLoop();  
         
         /**
          * deallocate the vulkan context and allocated memeory
          */
-        void cleanup();        
+        void cleanup();  
+        
+        //
+        // debug functions
+        //
+
+        /**
+         * returns true if the debug layers exist
+         */
+        bool checkValidationLayerSupport();
+        
     };
 
 } // namespace Renderer

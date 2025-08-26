@@ -3,7 +3,7 @@
 #include "renderer/renderer.cpp"
 
 int main() {
-    Renderer::HelloTriangleApplication app;
+    Renderer::VulkanApplication app;
 
     try {
         app.run();
