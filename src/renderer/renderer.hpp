@@ -36,7 +36,21 @@ namespace Renderer {
 
         VkInstance instance;
 
+        /**
+         * the real hardware rendering device 
+         */
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        /**
+         * the interface "logical" device to use to interact with the physical device
+         */
+        VkDevice device;
+
+        // queues
+        /**
+         * graphical queue used for rendering
+         */
+        VkQueue graphicsQueue;
 
         //
         // main functions
@@ -72,6 +86,11 @@ namespace Renderer {
          * each queue has different commands allowed to be executed 
          */
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+        /**
+         * sets up the logical device based on the choosen physical device
+         */
+        void createLogicalDevice();
 
         /**
          * This is the main loop of the renderer
