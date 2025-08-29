@@ -105,6 +105,9 @@ namespace Renderer {
          */
         VkQueue presentQueue;
 
+        VkRenderPass renderPass;
+        VkPipelineLayout pipelineLayout;
+
         //
         // main functions
         //
@@ -192,6 +195,12 @@ namespace Renderer {
         //
         // graphics pipeline
         //
+
+        /**
+         * an object containing information about color, depth buffers, samples and how to handle the contents of the framebuffer
+         * see: https://vulkan-tutorial.com/en/Drawing_a_triangle/Graphics_pipeline_basics/Render_passes
+         */
+        void createRenderPass();
 
         /**
          * creates the graphics pipeline, duh
