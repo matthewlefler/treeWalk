@@ -189,6 +189,15 @@ namespace Renderer {
          */
         void createImageViews();
 
+        //
+        // graphics pipeline
+        //
+
+        /**
+         * creates the graphics pipeline, duh
+         */
+        void createGraphicsPipeline();
+
         /**
          * This is the main loop of the renderer
          */
