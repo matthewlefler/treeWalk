@@ -79,6 +79,12 @@ namespace Renderer {
          * see: https://vulkan-tutorial.com/en/Drawing_a_triangle/Presentation/Image_views
          */
         std::vector<VkImageView> swapChainImageViews;
+
+        /**
+         * container of the framebuffers that contain the frames to write to
+         * @see https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Framebuffers
+         */
+        std::vector<VkFramebuffer> swapChainFramebuffers;
         
         /**
          * the color format of the swap chain VkImages
@@ -105,12 +111,27 @@ namespace Renderer {
          */
         VkQueue presentQueue;
 
+        //
+        // graphics pipeline
+        //
+
+        VkPipeline graphicsPipeline;
+
         VkRenderPass renderPass;
+        
         VkPipelineLayout pipelineLayout;
 
         //
-        // main functions
+        // commands
         //
+
+        VkCommandPool commandPool;
+
+        VkCommandBuffer commandBuffer;
+
+        ////////////////////
+        // main functions //
+        ////////////////////
 
         /**
          * initialyze the glfw context and create the window
@@ -192,9 +213,25 @@ namespace Renderer {
          */
         void createImageViews();
 
-        //
-        // graphics pipeline
-        //
+        /**
+         * create the frame buffers in swapChainFramebuffers
+         */
+        void createFramebuffers();
+
+        //////////////
+        // commands //
+        //////////////
+
+        void createCommandPool();
+
+        void createCommandBuffer();
+
+        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+
+        ///////////////////////
+        // graphics pipeline //
+        ///////////////////////
 
         /**
          * an object containing information about color, depth buffers, samples and how to handle the contents of the framebuffer
@@ -215,7 +252,7 @@ namespace Renderer {
         /**
          * deallocate the vulkan context and allocated memeory
          */
-        void cleanup();  
+        void cleanup();
         
         //////////////////////
         // debug functions ///
