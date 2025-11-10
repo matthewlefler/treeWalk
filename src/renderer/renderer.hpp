@@ -26,6 +26,8 @@ namespace Renderer {
         void run();
     
     private:
+        const int MAX_FRAMES_IN_FLIGHT = 2;
+
         const uint32_t WINDOW_WIDTH = 800;
         const uint32_t WINDOW_HEIGHT = 600;
 
@@ -128,6 +130,14 @@ namespace Renderer {
         VkCommandPool commandPool;
 
         VkCommandBuffer commandBuffer;
+
+        //
+        // sync objects
+        // 
+        
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
+        VkFence inFlightFence;
 
         ////////////////////
         // main functions //
@@ -248,6 +258,17 @@ namespace Renderer {
          * This is the main loop of the renderer
          */
         void mainLoop();  
+
+        /**
+         * creates the sycronization objects required
+         * for the drawFrame() function
+         */
+        void createSyncObjects();
+
+        /**
+         * This is the main draw call
+         */
+        void drawFrame();
         
         /**
          * deallocate the vulkan context and allocated memeory
