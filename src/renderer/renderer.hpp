@@ -3,6 +3,8 @@
 #include <cstring>
 #include <optional>
 
+#include "vertex.hpp"
+
 #pragma once
 
 namespace Renderer {
@@ -24,12 +26,26 @@ namespace Renderer {
     class VulkanApplication {
     public:
         void run();
-    
+        
     private:
-        const int MAX_FRAMES_IN_FLIGHT = 2;
+        const std::vector<Vertex> vertices = {
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
+        };
 
+        const std::vector<uint16_t> indices = {
+            0, 1, 2, 2, 3, 0
+        };
+
+        const int MAX_FRAMES_IN_FLIGHT = 2;
+        uint32_t currentFrame = 0;
+        
         const uint32_t WINDOW_WIDTH = 800;
         const uint32_t WINDOW_HEIGHT = 600;
+        
+        bool framebufferResized = false;
 
         const std::vector<const char*> deviceExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -129,15 +145,25 @@ namespace Renderer {
 
         VkCommandPool commandPool;
 
-        VkCommandBuffer commandBuffer;
+        std::vector<VkCommandBuffer> commandBuffers;
 
         //
         // sync objects
         // 
         
-        VkSemaphore imageAvailableSemaphore;
-        VkSemaphore renderFinishedSemaphore;
-        VkFence inFlightFence;
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        std::vector<VkFence> inFlightFences;
+
+        //
+        // buffers
+        //
+
+        VkBuffer vertexBuffer;
+        VkDeviceMemory vertexBufferMemory; // device side memory
+
+        VkBuffer indexBuffer;
+        VkDeviceMemory indexBufferMemory;
 
         ////////////////////
         // main functions //
@@ -184,6 +210,11 @@ namespace Renderer {
          */
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
+        /**
+         * function to call when GLFW finds that the window was resized
+         */
+        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
         //////////////////
         /// swap chain ///
         //////////////////
@@ -214,6 +245,12 @@ namespace Renderer {
         void createSwapChain();
 
         /**
+         * recreates the swap chain 
+         * for if swap chain related data changes
+         */
+        void recreateSwapChain();
+
+        /**
          * sets up the logical device based on the choosen physical device
          */
         void createLogicalDevice();
@@ -234,7 +271,7 @@ namespace Renderer {
 
         void createCommandPool();
 
-        void createCommandBuffer();
+        void createCommandBuffers();
 
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -269,7 +306,36 @@ namespace Renderer {
          * This is the main draw call
          */
         void drawFrame();
-        
+
+        /////////////////
+        // gpu buffers //
+        /////////////////
+
+        void createVertexBuffer();
+
+        void createIndexBuffer();
+
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        /**
+         * create a buffer and its memory
+         */
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+        /**
+         * copy data from one buffer to another
+         */
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+        ////////////////////////
+        // clean up functions //
+        ////////////////////////
+
+        /**
+         * deallocate swapchain and related memory
+         */
+        void cleanupSwapChain();
+
         /**
          * deallocate the vulkan context and allocated memeory
          */
