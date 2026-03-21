@@ -79,6 +79,10 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "source_location": "cpp",
+        "stack": "cpp",
+        "stdfloat": "cpp",
+        "valarray": "cpp"
     }
 }
