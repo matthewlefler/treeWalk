@@ -1,10 +1,12 @@
+use bevy::ecs::component::Component;
+
 mod debug_display;
 
-#[derive(Debug)]
-struct Tree {
+#[derive(Debug, Component)]
+pub struct Tree {
     // static
-    branches: Vec<bevy::prelude::Segment3d>,
+    pub branches: Vec<bevy::prelude::Segment3d>,
     // at ends of branches
-    meristems: Vec<bevy::prelude::Vec3>,
+    pub meristems: Vec<bevy::prelude::Vec3>,
 }
 
