@@ -8,7 +8,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
-                    title: "tree-walk".into(),
+                    title: "treeWalk".into(),
                     // resolution: (600, 600).into(),
                     ..default()
                 }),
@@ -21,10 +21,12 @@ fn main() {
         .add_systems(Startup, (
             fps_camera::spawn_player_camera,
             debug_setup,
+            trees::debug_setup,
         ))
         .add_systems(Update, (
             fps_camera::move_player,
             fps_camera::grab_mouse,
+            trees::debug_display::tree_debug_display_system,
         ))
         .run();
 }
@@ -46,7 +48,7 @@ fn debug_setup(
 
     // temp debug axii 
     {
-        let pos = Vec3::new(-2.0, 0.0, -1.0);
+        let pos = Vec3::new(-2.0, 0.0, 0.0);
         commands.spawn((
             Mesh3d(meshes.add(Segment3d::new(Vec3::ZERO, Vec3::X))),
             Transform::from_translation(pos),

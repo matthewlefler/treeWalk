@@ -1,9 +1,7 @@
 use bevy::{
     prelude::*,
     asset::RenderAssetUsages,
-    mesh::{Indices, VertexAttributeValues},
     render::render_resource::PrimitiveTopology,
-
 };
 
 #[derive(Debug, Component)]
@@ -17,12 +15,14 @@ pub fn tree_debug_display_system(
 ) -> () {
     for (tree_entity, tree_struct) in trees {
         // create mesh
-        let branch_mesh = create_debug_mesh(tree_struct);
+        if let Ok(branch_mesh) = create_debug_mesh(tree_struct) {
+            commands.entity(tree_entity).insert(Mesh3d(meshes.add(branch_mesh)));
+        }
 
         // update mesh
-        commands.entity(tree_entity).insert(Mesh3d(meshes.add(branch_mesh)));
         commands.entity(tree_entity).insert(MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 1.0, 1.0),
+            base_color: Color::srgb(0.0, 1.0, 0.0),
+            unlit : true,
             ..Default::default()
         })));
     }
@@ -30,8 +30,8 @@ pub fn tree_debug_display_system(
 
 fn create_debug_mesh(
     tree: &super::Tree,
-) -> bevy::mesh::Mesh {
-    Mesh::new(
+) -> Result<Mesh> {
+    let mut mesh = Mesh::new(
         PrimitiveTopology::LineList, 
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
     )
@@ -40,5 +40,18 @@ fn create_debug_mesh(
             tree.branches.iter()
                 .flat_map(|branch| [branch.point1(), branch.point2()])
                 .collect::<Vec<Vec3>>(),
+        );
+
+    mesh.merge(
+        &Mesh::new(
+            PrimitiveTopology::PointList, 
+            RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
         )
+            .with_inserted_attribute(
+                Mesh::ATTRIBUTE_POSITION, 
+                tree.meristems.clone(),
+            )
+    )?;
+    
+    Ok(mesh)
 }
