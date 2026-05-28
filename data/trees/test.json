@@ -1,0 +1,7 @@
+{
+    "name": "test",
+    
+    "grow_distance": 1.0,
+    "nodes_per_growth": 3,
+    "angle_between_nodes": 2.39982772149
+}
