@@ -24,6 +24,10 @@ typedef struct Tree {
 
 Tree new_tree_from_name(char* name);
 
+void update_tree(Tree* tree);
+
 void add_branch(Tree* tree, Branch branch);
+
+void add_meristem(Tree* tree, Meristem meristem);
 
 #endif

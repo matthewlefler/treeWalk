@@ -23,10 +23,7 @@
  * meant to have a static lifetime
  */
 TreeSettings* tree_settings_array;
-size_t tree_settings_array_len = 0;
-
-size_t tree_settings_array_alloc_len = 0;
-
+size_t tree_settings_array_len;
 
 /**
  * @param name the name of the tree settings to get
@@ -40,7 +37,7 @@ TreeSettings* get_setting(char* name) {
             return tree_settings_array + i;
         }
     }
-    return (void*) 0;
+    return nullptr;
 }
 
 /**
@@ -60,20 +57,19 @@ TreeSettings* get_setting_index(size_t index) {
  * 
  * @param path The absolute path to the file i.e. (/home/user/gitrepo/data/trees/test.json)
  */
-TreeSettings load_setting(char* path) {
+ int load_setting(char* path, TreeSettings* tree_settings) {
     FILE* file = fopen(path, "r");
 
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     rewind(file);
 
-    char* buffer = malloc(size);
+    char* buffer = malloc(size + 1);
     fread(buffer, 1, size, file);
+    buffer[size] = '\0';
 
     cJSON* json = cJSON_Parse(buffer);
     free(buffer);
-
-    TreeSettings tree_settings;
 
     /*
      * example tree settings
@@ -92,22 +88,30 @@ TreeSettings load_setting(char* path) {
     cJSON* angle_between_nodes = cJSON_GetObjectItemCaseSensitive(json, "angle_between_nodes");
 
     if(cJSON_IsString(name)) {
-        tree_settings.name = malloc(strlen(name->valuestring) + 1);
-        strcpy(tree_settings.name, name->valuestring);
+        tree_settings->name = malloc(strlen(name->valuestring) + 1);
+        strcpy(tree_settings->name, name->valuestring);
+    } else {
+        return 0;
     }
     if(cJSON_IsNumber(grow_distance)) {
-        tree_settings.grow_distance = grow_distance->valuedouble;
+        tree_settings->grow_distance = grow_distance->valuedouble;
+    } else {
+        return 0;
     }
     if(cJSON_IsNumber(nodes_per_growth)) {
-        tree_settings.nodes_per_growth = grow_distance->valueint;
+        tree_settings->nodes_per_growth = grow_distance->valueint;
+    } else {
+        return 0;
     }
     if(cJSON_IsNumber(angle_between_nodes)) {
-        tree_settings.angle_between_nodes = grow_distance->valuedouble;
+        tree_settings->angle_between_nodes = grow_distance->valuedouble;
+    } else {
+        return 0;
     }
 
     cJSON_Delete(json);
 
-    return tree_settings;
+    return 1;
 }
 
 void load_settings(char* dir) {
@@ -118,6 +122,9 @@ void load_settings(char* dir) {
         printf("Could not open tree settings directory:\n\t%s\n", dir);
         return;
     }
+
+    tree_settings_array = malloc(0);
+    tree_settings_array_len = 0;
 
     printf("loading tree settings\n");
     while ((de = readdir(dr)) != NULL) {
@@ -136,13 +143,25 @@ void load_settings(char* dir) {
         // if the file is a regular file
         if(S_ISREG(info.st_mode)) {
 #endif        
-            load_setting(path);
-            printf("loaded:     ");
-        } else {
-            printf("not loaded: ");
-        }
-        printf("\t%s\n", de->d_name); // Print file/folder name
+            TreeSettings setting; 
+            int did_parse = load_setting(path, &setting);
+            
+            if(did_parse) {
+                tree_settings_array = realloc(tree_settings_array, (tree_settings_array_len + 1) * sizeof(TreeSettings));
+                tree_settings_array[tree_settings_array_len] = setting;
+                ++tree_settings_array_len;
+                printf("loaded:          %s\n", de->d_name);
+                printf("\tname:                %s\n", setting.name);
+                printf("\tangle_between_nodes: %f\n", setting.angle_between_nodes);
+                printf("\tgrow_distance:       %f\n", setting.grow_distance);
+                printf("\tnodes_per_growth:    %d\n", setting.nodes_per_growth);
+            } else {
+                printf("unable to parse: %s\n", de->d_name);
+            }
 
+        } else {
+            printf("not loaded:      %s\n", de->d_name);
+        }
     }
     printf("done\n");
 

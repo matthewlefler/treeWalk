@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "trees/tree.h"
+#include "trees/display.h"
 
 int main(int argc, char** argv)
 {
@@ -22,10 +23,10 @@ int main(int argc, char** argv)
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     camera.fovy = 90.0f;
 
-    Vector3 zero = (Vector3) {0, 0, 0};
-    Vector3 x = (Vector3) {1, 0, 0};
-    Vector3 y = (Vector3) {0, 1, 0};
-    Vector3 z = (Vector3) {0, 0, 1};
+    Vector3 zero = (Vector3) {-2, 0, 0};
+    Vector3 x = (Vector3) {-1, 0, 0};
+    Vector3 y = (Vector3) {-2, 1, 0};
+    Vector3 z = (Vector3) {-2, 0, 1};
     
     DisableCursor();
 
@@ -55,6 +56,8 @@ int main(int argc, char** argv)
                     DrawLine3D(zero, x, RED); 
                     DrawLine3D(zero, y, GREEN); 
                     DrawLine3D(zero, z, BLUE);
+
+                    debug_draw_tree(&tree);
 
                 EndMode3D();
 

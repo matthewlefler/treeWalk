@@ -1,7 +1,7 @@
 INCLUDE_DIR = include
 CC = gcc
 # -MMD -MP flags automatically generate dependency tracking files (.d)
-CFLAGS = -I$(INCLUDE_DIR) -MMD -MP
+CFLAGS = -I$(INCLUDE_DIR) -MMD -MP -g
 
 OBJECT_DIR = build
 SOURCE_DIR = src

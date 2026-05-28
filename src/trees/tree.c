@@ -34,8 +34,24 @@ Tree new_tree_from_name(char* name) {
     return tree;
 }
 
+void update_tree(Tree* tree) {
+    int nodes_per_growth = tree->tree_settings->nodes_per_growth;
+    float grow_distance = tree->tree_settings->grow_distance;
+
+    for(size_t i = 0; i < tree->meristems_len; ++i) {
+        Meristem meristem = tree->meristems[i];
+        for(int j = 0; j < nodes_per_growth; j++) {
+            
+        } 
+    }
+}
+
 void add_branch(Tree* tree, Branch branch) {
-    
+
+}
+
+void add_meristem(Tree* tree, Meristem meristem) {
+
 }
 
 #endif
