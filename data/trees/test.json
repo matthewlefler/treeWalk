@@ -3,5 +3,11 @@
     
     "grow_distance": 1.0,
     "nodes_per_growth": 3,
-    "angle_between_nodes": 2.39982772149
+    "angle_between_nodes": 2.39982772149,
+
+    "gravity_tropism": 1.0,
+    "horizontal_when_shaded_tropism": 1.0,
+    "to_light_tropism": 1.0,
+    "random_tropism": 0.1,
+    "twist_tropism": 0.0
 }

@@ -8,9 +8,9 @@
 typedef struct Branch {
     Vector3 start_point;
     Vector3 end_point;
-    size_t parent;
-    size_t children_len;
-    size_t* children;
+    size_t parent; // index to parent
+    size_t children_len; 
+    size_t* children; // array of indices
     float length;
 } Branch;
 

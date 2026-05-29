@@ -1,7 +1,10 @@
 #ifndef MAIN_C
 #define MAIN_C
 
-#include "raylib.h"
+#include <stdio.h>
+
+#include <raylib.h>
+
 #include "trees/tree.h"
 #include "trees/display.h"
 
@@ -14,7 +17,7 @@ int main(int argc, char** argv)
 
     InitWindow(screenWidth, screenHeight, "raylib - basic window");
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(165);               // Set our game to run at 60 frames-per-second
 
     // create camera object
     Camera camera = { 0 };
@@ -31,7 +34,17 @@ int main(int argc, char** argv)
     DisableCursor();
 
     load_settings("data/trees/");    
-    Tree tree = new_tree_from_name("test");
+    Tree tree = new_tree_from_name("test", 0x1ABC123115812754);
+
+    size_t num = 8;
+    Tree trees[num];
+    for(size_t i = 0; i < num; ++i) {
+        trees[i] = copy_tree(&tree);
+        trees[i].transform.translation.x = i * 5;
+        update_tree(&tree);
+        printf("gen tree iter: %d\n", i);
+        fflush(stdout);
+    }
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -57,7 +70,9 @@ int main(int argc, char** argv)
                     DrawLine3D(zero, y, GREEN); 
                     DrawLine3D(zero, z, BLUE);
 
-                    debug_draw_tree(&tree);
+                    for(size_t i = 0; i < num; ++i) {
+                        debug_draw_tree(&trees[i]);
+                    }
 
                 EndMode3D();
 
@@ -67,6 +82,7 @@ int main(int argc, char** argv)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    free_tree_settings();
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

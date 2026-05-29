@@ -2,6 +2,9 @@
 #define TREE_H
 
 #include <raymath.h>
+#include <stdint.h>
+
+#include "../random/xoshiro256.h"
 
 #include "tree_settings.h"
 
@@ -20,14 +23,19 @@ typedef struct Tree {
     Meristem* meristems;
 
     TreeSettings* tree_settings;
+
+    uint64_t seed;
+    Xoshiro256ssState prand_state; // pesudo-random number generator state
 } Tree;
 
-Tree new_tree_from_name(char* name);
+Tree new_tree_from_name(char* name, uint64_t seed);
 
 void update_tree(Tree* tree);
 
 void add_branch(Tree* tree, Branch branch);
 
 void add_meristem(Tree* tree, Meristem meristem);
+
+Tree copy_tree(Tree* tree);
 
 #endif
