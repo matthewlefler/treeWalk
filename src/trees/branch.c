@@ -3,21 +3,18 @@
 
 #include "branch.h"
 
-#include <raylib.h>
-#include <raymath.h>
+#include "../cglm/include/cglm/cglm.h"
 
-Branch create_branch(Vector3 start, Vector3 end) {
-    float length = Vector3Length(Vector3Subtract(end, start));
+Branch create_branch(vec3 start, vec3 end) {
+    float length = glm_vec3_distance(end, start);
 
-    Branch branch = {
-        .start_point = start,
-        .end_point = end,
-        .length = length,
-    };
+    Branch branch;
+    branch.length = length;
+
+    glm_vec3_copy(end, branch.end_point);
+    glm_vec3_copy(start, branch.start_point);
     
     return branch;
 }
-
-
 
 #endif

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <raymath.h>
+#include "../cglm/include/cglm/cglm.h"
 
 #include "../random/xoshiro256.h"
 
@@ -19,28 +19,31 @@
 #define INIT_SIZE 10
 
 Tree new_tree_from_name(char* name, uint64_t seed) {
-    Tree tree = {
-        .transform = {
-            .translation = Vector3Zero(),
-            .rotation = QuaternionIdentity(),
-            .scale = Vector3One(),
-        },
+    Tree tree;
 
-        .branches_len = 0,
-        .branches_alloc_size = INIT_SIZE,
-        .meristems_len = 1,
-        .meristems_alloc_size = INIT_SIZE,
+    glm_vec3_copy(GLM_VEC3_ZERO, tree.translation);
+    glm_vec3_copy(GLM_VEC3_ONE, tree.scale);
+    glm_quat_copy(GLM_QUAT_IDENTITY, tree.rotation);
 
-        .branches = malloc(sizeof(Branch) * INIT_SIZE),
-        .meristems = malloc(sizeof(Meristem) * INIT_SIZE),
-        .tree_settings = get_setting(name),
+    tree.branches_len = 0;
+    tree.branches_alloc_size = INIT_SIZE;
 
-        .seed = seed,
-    };
+    tree.meristems_len = 0;
+    tree.meristems_alloc_size = INIT_SIZE;
 
+    tree.leaves_len = 0;
+    tree.leaves_alloc_size = INIT_SIZE;
+
+    tree.branches = malloc(sizeof(Branch) * INIT_SIZE);
+    tree.meristems = malloc(sizeof(Meristem) * INIT_SIZE);
+    tree.leaves = malloc(sizeof(Leaf) * INIT_SIZE);
+
+    tree.tree_settings = get_setting(name);
+
+    tree.seed = seed;
     xorshift256_init(&tree.prand_state, tree.seed);
 
-    tree.meristems[0] = create_meristem(Vector3Zero(), QuaternionIdentity(), ALIVE);
+    add_meristem(&tree, create_meristem(GLM_VEC3_ZERO, GLM_QUAT_IDENTITY, BUD));
 
     return tree;
 }
@@ -48,6 +51,64 @@ Tree new_tree_from_name(char* name, uint64_t seed) {
 constexpr uint64_t bud_die_chance = ((((uint64_t) 2 << 63) - 1) / 2);
 
 void update_tree(Tree* tree) {
+    update_meristems(tree);
+    create_leaves(tree);
+}
+
+void create_leaves(Tree* tree) {
+    tree->leaves_len = 0;
+
+    vec3 leaf_template_point_1 = {-0.1, 0, 0};
+    vec3 leaf_template_point_2 = {0, 0, 0.16};
+    vec3 leaf_template_point_3 = {0.1, 0, 0};
+
+    vec3 x = {1, 0, 0};
+    vec3 tmp;
+
+    vec3 p1;
+    vec3 p2;
+    vec3 p3;
+
+    versor rotation;
+
+    size_t meristems_len = tree->meristems_len;
+    Meristem meristem;
+    for(size_t i = 0; i < meristems_len; ++i) {
+        meristem = tree->meristems[i];
+
+        if(meristem.state == BUD) {
+            if(xoshiro256ss(&tree->prand_state) > bud_die_chance) {
+                meristem.state = DEAD;
+            } else {
+                meristem.state = ALIVE;
+                
+                glm_quat_rotatev(meristem.rotation, leaf_template_point_2, tmp);
+                
+                tmp[1] = 0.0f;
+                
+                if(glm_vec3_norm2(tmp) == 0) {
+                    glm_vec3_copy(GLM_XUP, tmp);
+                }
+                
+                glm_vec3_normalize(tmp);
+
+                glm_quat_from_vecs(GLM_XUP, tmp, rotation);
+
+                glm_quat_rotatev(rotation, leaf_template_point_1, p1);
+                glm_quat_rotatev(rotation, leaf_template_point_2, p2);
+                glm_quat_rotatev(rotation, leaf_template_point_3, p3);
+
+                glm_vec3_add(meristem.translation, p1, p1);
+                glm_vec3_add(meristem.translation, p2, p2);
+                glm_vec3_add(meristem.translation, p3, p3);
+
+                add_leaf(tree, create_leaf(p1, p2, p3));
+            }
+        }
+    }
+}
+
+void update_meristems(Tree* tree) {
     uint32_t nodes_per_growth = tree->tree_settings->nodes_per_growth;
     float grow_distance = tree->tree_settings->grow_distance;
     float angle_between_nodes = tree->tree_settings->angle_between_nodes;
@@ -59,31 +120,28 @@ void update_tree(Tree* tree) {
     float random_tropism                 = tree->tree_settings->random_tropism;
     float twist_tropism                  = tree->tree_settings->twist_tropism;
 
-    Vector3 perpendifular_vector;
-    Vector3 unit_vector;
-    Vector3 x = (Vector3) {1, 0, 0};
-    Vector3 y = (Vector3) {0, 1, 0};
+    vec3 local_x_vector;
+    vec3 local_y_vector;
+    vec3 local_z_vector;
 
-    Vector3 offset_vector;
+    vec3 offset_vector;
 
-    Vector3 gravity_tropism_vector = (Vector3) {0, gravity_tropism, 0};
-    Vector3 horizontal_when_shaded_tropism_vector; // not completely implemented
-    Vector3 to_light_tropism_vector = (Vector3) {0, 0, 0}; // unimplemented
-    Vector3 random_tropism_vector;
-    Vector3 twist_tropism_vector = (Vector3) {0, 0, 0}; // unimplemented
+    vec3 growth_unit_vector = {0, grow_distance / nodes_per_growth, 0}; 
 
+    vec3 growth_vector;
+    vec3 gravity_tropism_vector = {0, gravity_tropism, 0};
+    vec3 horizontal_when_shaded_tropism_vector = {0, 0, 0}; // not completely implemented
+    vec3 to_light_tropism_vector = {0, 0, 0}; // unimplemented
+    vec3 random_tropism_vector;
+    vec3 twist_tropism_vector = {0, 0, 0}; // unimplemented
+
+    
     size_t meristems_len = tree->meristems_len;
-
+    Meristem meristem;
+    vec3 new_meristem_translation;
     for(size_t i = 0; i < meristems_len; ++i) {
-        Meristem meristem = tree->meristems[i];
+        meristem = tree->meristems[i];
 
-        if(meristem.state == BUD) {
-            if(xoshiro256ss(&tree->prand_state) > bud_die_chance) {
-                meristem.state = DEAD;
-            } else { 
-                meristem.state = ALIVE;
-            }
-        }
         if(meristem.state == DEAD) {
             continue;
         }
@@ -92,30 +150,54 @@ void update_tree(Tree* tree) {
         for(int j = 0; j < nodes_per_growth; j++) {
             angle += angle_between_nodes;
 
-            perpendifular_vector = Vector3RotateByQuaternion(x, meristem.transform.rotation);
-            unit_vector = Vector3RotateByQuaternion(y, meristem.transform.rotation);
+            glm_quat_rotatev(meristem.rotation, GLM_XUP, local_x_vector);
+            glm_quat_rotatev(meristem.rotation, GLM_YUP, local_y_vector);
+            glm_quat_rotatev(meristem.rotation, GLM_ZUP, local_z_vector);
 
-            horizontal_when_shaded_tropism_vector = (Vector3) {unit_vector.x * horizontal_when_shaded_tropism, 0, unit_vector.z * horizontal_when_shaded_tropism};
-            random_tropism_vector = Vector3RotateByAxisAngle(Vector3Scale(perpendifular_vector, random_tropism), unit_vector, (float) xoshiro256ss(&tree->prand_state));
+            glm_quat_rotatev(meristem.rotation, growth_unit_vector, growth_vector);
+
+            horizontal_when_shaded_tropism_vector[0] = local_y_vector[0] * horizontal_when_shaded_tropism;
+            horizontal_when_shaded_tropism_vector[2] = local_y_vector[2] * horizontal_when_shaded_tropism;
+
+            glm_vec3_scale(local_x_vector, random_tropism, random_tropism_vector);
+            glm_vec3_rotate(random_tropism_vector, (float) xoshiro256ss(&tree->prand_state), local_y_vector);
 
             // sum all vectors
-            offset_vector = (Vector3) {
-                gravity_tropism_vector.x + horizontal_when_shaded_tropism_vector.x + to_light_tropism_vector.x + random_tropism_vector.x + twist_tropism_vector.x,
-                gravity_tropism_vector.y + horizontal_when_shaded_tropism_vector.y + to_light_tropism_vector.y + random_tropism_vector.y + twist_tropism_vector.y,
-                gravity_tropism_vector.z + horizontal_when_shaded_tropism_vector.z + to_light_tropism_vector.z + random_tropism_vector.z + twist_tropism_vector.z,
-            };
+            offset_vector[0] = growth_vector[0] + gravity_tropism_vector[0] + horizontal_when_shaded_tropism_vector[0] + to_light_tropism_vector[0] + random_tropism_vector[0] + twist_tropism_vector[0];
+            offset_vector[1] = growth_vector[1] + gravity_tropism_vector[1] + horizontal_when_shaded_tropism_vector[1] + to_light_tropism_vector[1] + random_tropism_vector[1] + twist_tropism_vector[1];
+            offset_vector[2] = growth_vector[2] + gravity_tropism_vector[2] + horizontal_when_shaded_tropism_vector[2] + to_light_tropism_vector[2] + random_tropism_vector[2] + twist_tropism_vector[2];
 
-            Vector3 new_meristem_translation = Vector3Add(meristem.transform.translation, offset_vector);
+            offset_vector[0] /= 6.0;
+            offset_vector[1] /= 6.0;
+            offset_vector[2] /= 6.0;
+            
+            // get new position
+            glm_vec3_add(meristem.translation, offset_vector, new_meristem_translation);
 
-            add_branch(tree, create_branch(meristem.transform.translation, new_meristem_translation));
-            add_meristem(tree, create_meristem(new_meristem_translation, QuaternionMultiply(QuaternionFromAxisAngle(unit_vector, angle), QuaternionFromVector3ToVector3(y, perpendifular_vector)), BUD));
+            // add new branch
+            add_branch(tree, create_branch(
+                meristem.translation, 
+                new_meristem_translation
+            ));
 
-            meristem.transform.translation = new_meristem_translation;
-            meristem.transform.rotation = QuaternionFromVector3ToVector3(y, offset_vector);
+            versor q1;
+            glm_quatv(q1, angle, local_y_vector);
+            versor q2;
+            glm_quat_from_vecs(GLM_YUP, local_x_vector, q1);
+            glm_quat_mul(q1, q2, q1);
+            // add new bud
+            add_meristem(tree, create_meristem(
+                new_meristem_translation, 
+                q1,
+                BUD
+            ));
+
+            glm_vec3_copy(new_meristem_translation, meristem.translation);
+            glm_quat_from_vecs(GLM_YUP, offset_vector, meristem.rotation);
         }
         tree->meristems[i] = meristem;
 
-        printf("\tmeristem %d/%d\n", i + 1, meristems_len);
+        // printf("\tmeristem %d/%d\n", i + 1, meristems_len);
     }
 }
 
@@ -139,14 +221,26 @@ void add_meristem(Tree* tree, Meristem meristem) {
     ++tree->meristems_len;
 }
 
+void add_leaf(Tree* tree, Leaf leaf) {
+    if(tree->leaves_len >= tree->leaves_alloc_size) {
+        tree->leaves_alloc_size = tree->leaves_alloc_size << 1;
+        tree->leaves = realloc(tree->leaves, sizeof(Leaf) * tree->leaves_alloc_size);
+    }
+
+    tree->leaves[tree->leaves_len] = leaf;
+    ++tree->leaves_len;
+}
+
 Tree copy_tree(Tree* tree) {
     Tree new_tree = *tree;
     
     new_tree.branches = malloc(sizeof(Branch) * tree->branches_alloc_size);
     new_tree.meristems = malloc(sizeof(Meristem) * tree->meristems_alloc_size);
+    new_tree.leaves = malloc(sizeof(Leaf) * tree->meristems_alloc_size);
     
     memcpy(new_tree.branches, tree->branches, sizeof(Branch) * tree->branches_len);
     memcpy(new_tree.meristems, tree->meristems, sizeof(Meristem) * tree->meristems_len);
+    memcpy(new_tree.leaves, tree->leaves, sizeof(Leaf) * tree->leaves_len);
 
     return new_tree;
 }

@@ -1,20 +1,17 @@
 #ifndef MERISTEM_C
 #define MERISTEM_C
 
-#include <raymath.h>
+#include "../cglm/include/cglm/cglm.h"
 
 #include "meristem.h"
 
-Meristem create_meristem(Vector3 position, Quaternion rotation, enum MeristemState state) {
-    Meristem meristem = {
-        .state = state,
+Meristem create_meristem(vec3 translation, versor rotation, enum MeristemState state) {
+    Meristem meristem;
 
-        .transform = {
-            .rotation = rotation,
-            .translation = position,
-            .scale = {1, 1, 1},
-        }
-    };
+    meristem.state = state;
+
+    glm_vec3_copy(translation, meristem.translation);
+    glm_quat_copy(rotation, meristem.rotation);
 
     return meristem;
 }

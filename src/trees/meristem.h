@@ -1,8 +1,7 @@
 #ifndef MERISTEM_H
 #define MERISTEM_H
 
-#include <raymath.h>
-#include <raylib.h>
+#include "../cglm/include/cglm/cglm.h"
 
 enum MeristemState {
     BUD,
@@ -11,10 +10,11 @@ enum MeristemState {
 };
 
 typedef struct Meristem {
-    Transform transform;
+    vec3 translation;
+    vec4 rotation;
     enum MeristemState state;
 } Meristem;
 
-Meristem create_meristem(Vector3 position, Quaternion rotation, enum MeristemState state);
+Meristem create_meristem(vec3 translation, vec4 rotation, enum MeristemState state);
 
 #endif 
