@@ -7,7 +7,7 @@
 #include "trees/tree.h"
 #include "trees/display.h"
 
-#include "render/render.h"
+#include "vulkan_renderer/render.h"
 
 int main(int argc, char** argv)
 {
@@ -46,8 +46,11 @@ int main(int argc, char** argv)
     //     fflush(stdout);
     // }
 
-    init();
-    run();
+    Window window;
+    create_window(800, 600, &window);
+    vulkan_renderer_init();
+    vulkan_renderer_run(&window);
+    vulkan_renderer_cleanup(&window);
 
     return EXIT_SUCCESS;
 }
