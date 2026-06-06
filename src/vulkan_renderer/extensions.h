@@ -9,4 +9,6 @@ VkResult get_required_instance_extensions(uint32_t* extension_count, const char*
 
 VkResult check_instance_extensions(uint32_t required_instance_extensions_count, const char const * const * required_instance_extensions);
 
+void free_extensions(const char * const* extensions, uint32_t len);
+
 #endif

@@ -9,4 +9,6 @@ VkResult get_required_instance_layers(uint32_t* out_instance_layers_count, const
 
 VkResult check_instance_layers(uint32_t required_instance_layers_count, const char const * const * required_instance_layers);
 
+void free_layers(const char * const* layers, uint32_t len);
+
 #endif

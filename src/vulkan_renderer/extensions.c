@@ -14,18 +14,24 @@ VkResult get_required_instance_extensions(uint32_t* out_extension_count, const c
     const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extensions_count);
 
     uint32_t debug_extensions_count = 0;
-    const char** debug_extensions = NULL;
+    char** debug_extensions = NULL;
 #ifndef NDEBUG
     debug_extensions_count = 1;
-    debug_extensions = (const char **) &VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+    debug_extensions = malloc(sizeof(char*) * debug_extensions_count);
+
+    debug_extensions[0] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 #endif
 
-    *out_extension_count = glfw_extensions_count;
+    *out_extension_count = glfw_extensions_count + debug_extensions_count;
     *out_extensions = malloc(sizeof(char*) * (*out_extension_count));
 
     uint32_t j = 0;
     for(uint32_t i = 0; i < glfw_extensions_count; ++i, ++j) {
         (*out_extensions)[j] = glfw_extensions[i];
+    }
+
+    for(uint32_t i = 0; i < debug_extensions_count; ++i, ++j) {
+        (*out_extensions)[j] = debug_extensions[i];
     }
 
     return VK_SUCCESS;
@@ -75,6 +81,13 @@ VkResult check_instance_extensions(uint32_t required_instance_extensions_count, 
     free(instance_extensions);
 
     return result;
+}
+
+void free_extensions(const char * const* extensions, uint32_t len) {
+    // for(uint32_t i = 0; i < len; ++i) {
+    //     free((void*) extensions[i]);
+    // }
+    free((void*) extensions);
 }
 
 #endif

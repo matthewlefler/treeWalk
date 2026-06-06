@@ -1,0 +1,4 @@
+#ifndef LOGICAL_DEVICES_H
+#define LOGICAL_DEVICES_H
+
+#endif
