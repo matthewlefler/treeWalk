@@ -4,13 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <vulkan/vk_enum_string_helper.h>
+
 #include "trees/tree.h"
 #include "trees/display.h"
 
 #include "vulkan_renderer/render.h"
 
+#include "logger/logger.h"
+
 int main(int argc, char** argv)
 {
+    set_log_level(LOG_LEVEL_VERBOSE);
 
     // load_settings("data/trees/");    
     // Tree tree = new_tree_from_name("test", 0x1ABC123115812754);
@@ -45,12 +50,17 @@ int main(int argc, char** argv)
     //     }
     //     fflush(stdout);
     // }
+    VkResult result;
 
-    Window window;
-    create_window(800, 600, &window);
-    vulkan_renderer_init();
-    vulkan_renderer_run(&window);
-    vulkan_renderer_cleanup(&window);
+    Renderer renderer;
+    result = vulkan_renderer_init(&renderer);
+    printf("init result: %s\n", string_VkResult(result));
+
+    result = vulkan_renderer_run(&renderer);
+    printf("run result: %s\n", string_VkResult(result));
+
+    result = vulkan_renderer_cleanup(&renderer);
+    printf("cleanup result: %s\n", string_VkResult(result));
 
     return EXIT_SUCCESS;
 }
