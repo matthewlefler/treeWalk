@@ -18,6 +18,7 @@ LIBS = -lm
 SRCS := $(wildcard src/*.c) \
 		$(wildcard src/trees/*.c) \
 		$(wildcard src/vulkan_renderer/*.c) \
+		$(wildcard src/vulkan_renderer/*/*.c) \
 		$(wildcard src/random/*.c) \
 		$(wildcard src/cJSON/*.c) \
 		$(wildcard src/cglm/src/*.c) \

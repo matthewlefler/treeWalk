@@ -9,9 +9,12 @@
 #include <GLFW/glfw3.h>
 #include "../cglm/include/cglm/cglm.h"
 
+#include "../utilities/logger/logger.h"
+
 #include "window.h"
 #include "extensions.h"
 #include "layers.h"
+#include "devices/devices.h"
 
 #include "render.h"
 
@@ -54,13 +57,13 @@ VkResult vulkan_create_instance(Renderer* renderer) {
         .pNext                   = NULL,
     };
 
-    printf("required extensions:\n");
+    log_message(LOG_LEVEL_VERBOSE, "required extensions:");
     for(uint32_t i = 0; i < create_info.enabledExtensionCount; ++i) {
-        printf("\t- %s\n", create_info.ppEnabledExtensionNames[i]);
+        log_message(LOG_LEVEL_VERBOSE, "\t- %s", create_info.ppEnabledExtensionNames[i]);
     }
-    printf("required layers:\n");
+    log_message(LOG_LEVEL_VERBOSE, "required layers:");
     for(uint32_t i = 0; i < create_info.enabledLayerCount; ++i) {
-        printf("\t- %s\n", create_info.ppEnabledLayerNames[i]);
+        log_message(LOG_LEVEL_VERBOSE, "\t- %s", create_info.ppEnabledLayerNames[i]);
     }
 
     result = vkCreateInstance(&create_info, NULL, &renderer->vk_instance);
@@ -156,6 +159,8 @@ VkResult vulkan_renderer_init(Renderer* renderer) {
 #ifndef NDEBUG
     create_debug_messenger(renderer);
 #endif
+
+    physical_device_get_sutable(renderer);
 }
 
 VkResult vulkan_renderer_run(Renderer* renderer) {

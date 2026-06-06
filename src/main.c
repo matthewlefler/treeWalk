@@ -54,13 +54,13 @@ int main(int argc, char** argv)
 
     Renderer renderer;
     result = vulkan_renderer_init(&renderer);
-    printf("init result: %s\n", string_VkResult(result));
+    log_message(LOG_LEVEL_DEBUG, "init result: %s", string_VkResult(result));
 
     result = vulkan_renderer_run(&renderer);
-    printf("run result: %s\n", string_VkResult(result));
+    log_message(LOG_LEVEL_DEBUG, "run result: %s", string_VkResult(result));
 
     result = vulkan_renderer_cleanup(&renderer);
-    printf("cleanup result: %s\n", string_VkResult(result));
+    log_message(LOG_LEVEL_DEBUG, "cleanup result: %s", string_VkResult(result));
 
     return EXIT_SUCCESS;
 }
