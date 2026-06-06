@@ -22,7 +22,7 @@ typedef enum LOG_LEVEL : unsigned char {
 
 void set_log_level(LOG_LEVEL level);
 
-void log_message(char* message, LOG_LEVEL level);
+void log_message(LOG_LEVEL level, const char* message, ...);
 
 const char const* log_level_to_string(LOG_LEVEL level);
 

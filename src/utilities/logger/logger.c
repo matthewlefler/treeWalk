@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdatomic.h>
+#include <stdarg.h>
 
 #include "logger.h"
 
@@ -11,10 +12,12 @@ _Atomic unsigned char CURRENT_LOG_LEVEL;
 
 void set_log_level(LOG_LEVEL level) {
     atomic_store(&CURRENT_LOG_LEVEL, (_Atomic unsigned char) level);
-    log_message("changed log level", LOG_LEVEL_INFO);
+    log_message(LOG_LEVEL_INFO, "changed log level to %s", log_level_to_string(level));
 }
 
-void log_message(char* message, LOG_LEVEL level) {
+void log_message(LOG_LEVEL level, const char* message, ...) {
+
+    
     // get current log level
     LOG_LEVEL current_log_level = (LOG_LEVEL) atomic_load(&CURRENT_LOG_LEVEL);
 
@@ -35,8 +38,15 @@ void log_message(char* message, LOG_LEVEL level) {
     // get log_level equvilent string
     const char const* log_level_string = log_level_to_string(level);
 
+    // print header
+    printf("[%s] %s: ", time_string, log_level_string);
     // print message
-    printf("[%s] %s: %s\n", time_string, log_level_string, message);
+    va_list args;
+    va_start(args, message);
+    vprintf(message, args);
+    va_end(args);
+
+    printf("\n");
 }
 
 const char const* log_level_to_string(LOG_LEVEL level) {

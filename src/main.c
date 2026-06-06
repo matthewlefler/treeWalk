@@ -11,7 +11,7 @@
 
 #include "vulkan_renderer/render.h"
 
-#include "logger/logger.h"
+#include "utilities/logger/logger.h"
 
 int main(int argc, char** argv)
 {
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     //     printf("gen tree iter: %d\n", i);
 
     //     printf("\tleaf list len: %d\n", trees[i].leaves_len);
-    //     for(size_t j = 0; j < trees[i].meristems_len; ++j) {\
+    //     for(size_t j = 0; j < trees[i].meristems_len; ++j) {
     //         Meristem l1 = trees[i].meristems[j];
     //         for(size_t k = 0; k < trees[i].meristems_len; ++k) {
     //             if(k == j) {continue;}

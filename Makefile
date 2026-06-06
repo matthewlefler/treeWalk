@@ -21,7 +21,7 @@ SRCS := $(wildcard src/*.c) \
 		$(wildcard src/random/*.c) \
 		$(wildcard src/cJSON/*.c) \
 		$(wildcard src/cglm/src/*.c) \
-		$(wildcard src/logger/*.c)
+		$(wildcard src/utilities/*/*.c) \
 
 # 2. Convert source paths to object paths in the build directory
 OBJ = $(SRCS:$(SOURCE_DIR)/%.c=$(OBJECT_DIR)/%.o)

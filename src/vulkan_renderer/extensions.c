@@ -11,10 +11,17 @@
 
 VkResult get_required_instance_extensions(uint32_t* out_extension_count, const char** (*out_extensions)) {
     uint32_t glfw_extensions_count = 0;
-    const char ** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extensions_count);
+    const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extensions_count);
+
+    uint32_t debug_extensions_count = 0;
+    const char** debug_extensions = NULL;
+#ifndef NDEBUG
+    debug_extensions_count = 1;
+    debug_extensions = (const char **) &VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+#endif
 
     *out_extension_count = glfw_extensions_count;
-    *out_extensions = malloc(sizeof(char*) * (glfw_extensions_count));
+    *out_extensions = malloc(sizeof(char*) * (*out_extension_count));
 
     uint32_t j = 0;
     for(uint32_t i = 0; i < glfw_extensions_count; ++i, ++j) {
