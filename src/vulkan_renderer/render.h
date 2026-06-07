@@ -13,6 +13,7 @@ typedef struct Renderer {
     VkDebugUtilsMessengerEXT debug_messenger;
 
     VkPhysicalDevice physical_device;
+    VkDevice logical_device;
 } Renderer;
 
 
