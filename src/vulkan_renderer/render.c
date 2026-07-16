@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
-#include "../cglm/include/cglm/cglm.h"
+#include "../../cglm/include/cglm/cglm.h"
 
 #include "../utilities/logger/logger.h"
 
@@ -150,7 +150,7 @@ VkResult create_debug_messenger(Renderer* renderer) {
     }
 }
 
-VkResult vulkan_renderer_init(Renderer* renderer) {
+VkResult vulkan_renderer_init(Renderer* renderer, uint32_t (*physical_device_score_function)(VkPhysicalDevice), uint32_t queue_flags_count, VkQueueFlagBits *queue_flags) {
     window_create(600, 800, &renderer->window, "TreeWalk");
 
     vulkan_create_instance(renderer);
@@ -160,11 +160,12 @@ VkResult vulkan_renderer_init(Renderer* renderer) {
     create_debug_messenger(renderer);
 #endif
 
-    physical_device_get_sutable(renderer);
+    renderer->devices = malloc(sizeof(Device) * 1);
+    return device_get(renderer->vk_instance, physical_device_score_function, queue_flags_count, queue_flags, renderer->devices);
 }
 
 VkResult vulkan_renderer_run(Renderer* renderer) {
-    while (!glfwWindowShouldClose(renderer->window.window_ptr)) {
+    while (false && !glfwWindowShouldClose(renderer->window.window_ptr)) {
         glfwPollEvents();
     }
 

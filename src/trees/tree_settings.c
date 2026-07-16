@@ -1,7 +1,3 @@
-
-#ifndef TREE_SETTINGS_C
-#define TREE_SETTINGS_C
-
 #define _DEFAULT_SOURCE
 
 #include <stdio.h>
@@ -127,7 +123,7 @@ void load_settings(char* dir) {
         return;
     }
 
-    tree_settings_array = malloc(0);
+    tree_settings_array = NULL;
     tree_settings_array_len = 0;
 
     printf("loading tree settings\n");
@@ -186,5 +182,3 @@ void free_tree_settings() {
 
     free(tree_settings_array);
 }
-
-#endif

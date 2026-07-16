@@ -10,15 +10,24 @@
 
 _Atomic unsigned char CURRENT_LOG_LEVEL;
 
+#ifdef NDEBUG
+
+inline void set_log_level(LOG_LEVEL level) {
+    return
+}
+
+inline void log_message(LOG_LEVEL level, const char* message, ...) {
+    return
+}
+
+#else
+
 void set_log_level(LOG_LEVEL level) {
-#ifndef NDEBUG
     atomic_store(&CURRENT_LOG_LEVEL, (_Atomic unsigned char) level);
     log_message(LOG_LEVEL_INFO, "set log level to %s", log_level_to_string(level));
-#endif
 }
 
 void log_message(LOG_LEVEL level, const char* message, ...) {
-#ifndef NDEBUG    
     // get current log level
     LOG_LEVEL current_log_level = (LOG_LEVEL) atomic_load(&CURRENT_LOG_LEVEL);
 
@@ -48,8 +57,9 @@ void log_message(LOG_LEVEL level, const char* message, ...) {
     va_end(args);
 
     printf("\n");
-#endif
 }
+
+#endif
 
 const char const* log_level_to_string(LOG_LEVEL level) {
     switch (level) {

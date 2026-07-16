@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../cglm/include/cglm/cglm.h"
+#include "../../cglm/include/cglm/cglm.h"
 
 #include "../random/xoshiro256.h"
 

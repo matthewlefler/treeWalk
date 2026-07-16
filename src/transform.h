@@ -1,7 +1,7 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
-#include "cglm/include/cglm/cglm.h"
+#include "../cglm/include/cglm/cglm.h"
 
 typedef struct Transform {
     versor rotation;

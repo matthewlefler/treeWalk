@@ -1,3 +1,7 @@
-[submodule "src/cglm"]
-	path = src/cglm
+[submodule "cglm"]
+	path = cglm
 	url = https://github.com/recp/cglm.git
+
+[submodule "raylib"]
+	path = raylib
+	url = https://github.com/raysan5/raylib.git

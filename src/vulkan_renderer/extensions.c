@@ -49,7 +49,7 @@ VkResult get_instance_extensions(VkExtensionProperties** extensions, uint32_t* e
     return vkEnumerateInstanceExtensionProperties(NULL, extension_count, *extensions);
 }
 
-VkResult check_instance_extensions(uint32_t required_instance_extensions_count, const char const * const * required_instance_extensions) {
+VkResult check_instance_extensions(uint32_t required_instance_extensions_count, const char* const * required_instance_extensions) {
     uint32_t instance_extensions_count;
     VkExtensionProperties* instance_extensions;
 
@@ -60,7 +60,7 @@ VkResult check_instance_extensions(uint32_t required_instance_extensions_count, 
     
     result = VK_SUCCESS;
     for(uint32_t i = 0; i < required_instance_extensions_count; ++i) {
-        const char const * required_instance_extension_name = required_instance_extensions[i];
+        const char* required_instance_extension_name = required_instance_extensions[i];
         bool found = false;
 
         for(uint32_t j = 0; j < instance_extensions_count; ++j) {

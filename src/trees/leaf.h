@@ -1,7 +1,7 @@
 #ifndef LEAF_H
 #define LEAF_H
 
-#include "../cglm/include/cglm/cglm.h"
+#include "../../cglm/include/cglm/cglm.h"
 
 typedef struct Leaf {
     vec3 points[3];

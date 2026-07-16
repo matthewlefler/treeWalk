@@ -1,6 +1,3 @@
-#ifndef LEAF_C
-#define LEAF_C
-
 #include "leaf.h"
 
 Leaf create_leaf(vec3 p1, vec3 p2, vec3 p3) {
@@ -43,5 +40,3 @@ void update_light(size_t leaves_len, Leaf* leaves) {
         Leaf leaf = leaves[i];
     }
 }
-
-#endif

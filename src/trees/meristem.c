@@ -1,7 +1,4 @@
-#ifndef MERISTEM_C
-#define MERISTEM_C
-
-#include "../cglm/include/cglm/cglm.h"
+#include "../../cglm/include/cglm/cglm.h"
 
 #include "meristem.h"
 
@@ -15,5 +12,3 @@ Meristem create_meristem(vec3 translation, versor rotation, enum MeristemState s
 
     return meristem;
 }
-
-#endif

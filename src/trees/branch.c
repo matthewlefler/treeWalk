@@ -1,9 +1,6 @@
-#ifndef BRANCH_C
-#define BRANCH_C
-
 #include "branch.h"
 
-#include "../cglm/include/cglm/cglm.h"
+#include "../../cglm/include/cglm/cglm.h"
 
 Branch create_branch(vec3 start, vec3 end) {
     float length = glm_vec3_distance(end, start);
@@ -16,5 +13,3 @@ Branch create_branch(vec3 start, vec3 end) {
     
     return branch;
 }
-
-#endif
