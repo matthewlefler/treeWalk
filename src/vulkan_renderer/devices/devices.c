@@ -5,14 +5,23 @@
 #include "physical_devices.h"
 #include "logical_devices.h"
 
-VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice), uint32_t queue_flags_count, VkQueueFlagBits* queue_flags, Device* out_device) {
+uint32_t default_score_func(VkPhysicalDevice device) {
+    return 1;
+}
+
+VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice), VkPhysicalDeviceFeatures2* device_feature_requirements, uint32_t queue_flags_count, VkQueueFlagBits* queue_flags, Device* out_device) {
     if(instance == NULL) {
-        log_message(LOG_LEVEL_ERROR, "renderer->vk_instance is null");
+        log_message(LOG_LEVEL_ERROR, "instance is null");
         return VK_ERROR_INITIALIZATION_FAILED;
+    }
+    
+    if(score_func == NULL) {
+        score_func = &default_score_func;
     }
 
     Device device;
 
+    // get physical devices
     uint32_t physical_devices_count = 0;
     vkEnumeratePhysicalDevices(instance, &physical_devices_count, NULL);
     VkPhysicalDevice* physical_devices = malloc(sizeof(VkPhysicalDevice) * physical_devices_count);
@@ -22,7 +31,8 @@ VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice
     VkPhysicalDevice current_best_physical_device;
     VkPhysicalDeviceProperties2 current_best_physical_device_properties;
     uint32_t* current_best_physical_device_queue_indices = NULL;
-
+    
+    // iterate over physical devices to pick "best" one
     for(uint32_t i = 0; i < physical_devices_count; ++i) {
         VkPhysicalDevice physical_device = physical_devices[i];
 
@@ -33,10 +43,16 @@ VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice
         vkGetPhysicalDeviceProperties2(physical_device, &physical_device_properties);
 
         uint32_t score = score_func(physical_device);
-
+        
+        // get indices of the required queues
         uint32_t* queue_indices = physical_device_queue_families_supports(physical_device, queue_flags_count, queue_flags, physical_device_properties.properties.deviceName);
+        VkBool32 has_requried_properties = physical_device_supports_features(physical_device, device_feature_requirements);
 
-        if(score > max_score && queue_indices != NULL) {
+        if(
+            score > max_score && 
+            queue_indices != NULL && 
+            has_requried_properties
+        ) {
             max_score = score;
 
             current_best_physical_device = physical_device;

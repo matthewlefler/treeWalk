@@ -52,3 +52,30 @@ uint32_t* physical_device_queue_families_supports(VkPhysicalDevice device, uint3
     return queue_indices;
 }
 
+VkBool32 physical_device_supports_features(VkPhysicalDevice physical_device, VkPhysicalDeviceFeatures2* device_feature_requirements) {
+    VkPhysicalDeviceFeatures2 quieried;
+
+    VkStructureType* current_struct = device_feature_requirements;
+    void** pNext = &device_feature_requirements->pNext;
+    while(*pNext != NULL) {
+        current_struct = (VkStructureType*) pNext;
+        switch (current_struct) {           
+
+            
+            default:
+                log_message(LOG_LEVEL_ERROR, "in function \"physical_device_supports_features\" structure not supported");
+                return VK_FALSE;
+                break;
+        }
+    }
+
+    vkGetPhysicalDeviceFeatures2(physical_device, quieried);
+
+    VkStructureType* current_struct = device_feature_requirements;
+    void* pNext = NULL;
+    do {
+        
+
+        pNext = (void*) (current_struct + 1);
+    } while (pNext != NULL);
+}

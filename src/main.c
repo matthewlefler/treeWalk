@@ -101,6 +101,34 @@ int main(int argc, char** argv)
     // }
     VkResult result;
 
+    // requirements
+        VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering = {
+            .dynamicRendering = VK_TRUE,
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
+        };
+
+        VkPhysicalDeviceVulkan11Features vulkan_11 = {
+            .shaderDrawParameters = VK_TRUE,
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+        };
+
+        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extended_dynamic_state = {
+            .extendedDynamicState = VK_TRUE,
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
+        };
+
+        VkPhysicalDeviceFeatures2 device_features_2 = {
+            .features.geometryShader = VK_TRUE,
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+        };
+        
+        // chain of features to grab
+        device_features_2.pNext = &dynamic_rendering;
+        dynamic_rendering.pNext = &vulkan_11;
+        vulkan_11.pNext = &extended_dynamic_state;
+        extended_dynamic_state.pNext = NULL;
+
+
     Renderer renderer;
     result = vulkan_renderer_init(&renderer, &score_physical_device);
     log_message(LOG_LEVEL_DEBUG, "init result: %s", string_VkResult(result));
