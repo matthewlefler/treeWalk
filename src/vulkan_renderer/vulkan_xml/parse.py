@@ -69,6 +69,12 @@ def debug_print_tree(element: ET.Element[str], last: list[bool] = [], level: int
         else:
             debug_print_tree(sub_element, last + [False], level + 1)
 
+comparator_dict = {
+    "VkBool32" : ">=",
+    "uint32_t" : ">=",
+    "VkStructureType" : "==",
+}
+
 if __name__ == "__main__":
     with open(xml_filename, "r") as xml_file:
         with open(output_c_filename, "w") as output_c_file:
@@ -133,10 +139,82 @@ if __name__ == "__main__":
 
             output_c_file.write("\n")
 
-            output_c_file.writelines([
-                "VkBool32 compare_structs(void* a, void* b) {\n"
-            ])
+# comparision functions
+            i = 0
+            while i < vkstructuretypes_len:
+                struct_type = vkstructuretypes[i].get("name", "NOT_FOUND")
+                sType = vkstypenames[i]
+                
+                protector = None
+                for enum in vkenumtypes:
+                    if(enum.get("name") == sType):
+                        protector = enum.get("protect")
+                
+                if(protector != None):
+                    output_c_file.writelines([
+                        f"#ifdef {protector}\n",
+                    ])
 
+                output_c_file.writelines([
+                    f"bool compare_{struct_type}({struct_type} a, {struct_type} b)",
+                    " {\n",
+                ])
+
+                output_c_file.write("    if (\n")
+
+                first = True
+                for element in vkstructuretypes[i]:
+                    if element.tag == "member":
+                        element_type = None
+                        name = None
+                        for sub in element:
+                            if sub.tag == "type":
+                                element_type = sub.text
+                            if sub.tag == "name":
+                                name = sub.text
+                        
+                        if element_type is None or name is None:
+                            continue
+                        if name == "pNext" or name == "sType": # skip redundant or useless checks
+                            continue
+
+                        if not first:
+                            output_c_file.write(" &&\n")
+                        first = False
+
+                        comparator = comparator_dict.get(element_type)
+                        if comparator is None:
+                            print(f"ERROR, comparator for type {element_type} not found")
+                        
+                        output_c_file.writelines([
+                            f"        a.{name}",
+                            f" {comparator} "    # comparator
+                            f"b.{name}"
+                        ])
+                
+                output_c_file.writelines([
+                    "\n    ) {\n",
+                    "        return true\n",
+                    "    }\n",
+                    "    return false\n",
+                    "}\n"
+                ])
+
+                if(protector != None):
+                    output_c_file.writelines([
+                        f"#endif\n",
+                    ])
+                i += 1
+            
+# compare arbitrary structure:
+            output_c_file.write("\n")
+
+            output_c_file.writelines([
+                "bool compare_structure(void* a, void* b) {\n",
+                "    switch(*(VkStructureType*) a) {\n",
+            ])           
+            
+            vkstructuretypes_len = len(vkstructuretypes)
             i = 0
             while i < vkstructuretypes_len:
                 struct_type = vkstructuretypes[i].get("name", "NOT_FOUND")
@@ -154,7 +232,7 @@ if __name__ == "__main__":
 
                 output_c_file.writelines([
                     f"        case {struct_type}:\n",
-                    f"            return_struct = malloc(sizeof({struct_type}));\n",
+                    f"            return compare_{struct_type}(a, b)\n",
                 ])
 
                 if(protector != None):
@@ -162,3 +240,12 @@ if __name__ == "__main__":
                         f"#endif\n",
                     ])
                 i += 1
+
+            output_c_file.writelines([
+                "    }\n",
+                "    return false;\n"
+                "}\n",
+            ])
+
+            output_c_file.write("\n")
+

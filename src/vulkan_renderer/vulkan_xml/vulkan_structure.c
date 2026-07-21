@@ -40,3 +40,27 @@ void free_struct_chain(void* start) {
         free(prev);
     }
 }
+
+bool compare_struct_chain(void* a, void* b) {
+    void* current_a = a;
+    void* current_b = b;
+    
+    // walk the structure chain,
+    while(current_a != NULL && current_b != NULL) {
+        if(!compare_structure(current_a, current_b)) {
+            return false;
+        }
+
+        current_a = get_pNext(current_a);
+        current_b = get_pNext(current_b);
+
+        if( // one structure chain is done while the other is not
+            (current_a == NULL && current_b != NULL) ||
+            (current_a != NULL && current_b == NULL)
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+}
