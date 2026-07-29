@@ -1,8 +1,12 @@
+#include <stdlib.h>
+
+#include <vulkan/vulkan.h>
+
 #include "physical_devices.h"
 
 #include "logical_devices.h"
 
-VkResult create_logical_device(VkPhysicalDevice* physical_device, uint32_t queue_count, VkQueueFlagBits* queue_flags, uint32_t* queue_indices, VkDevice* out_logical_device) {
+VkResult create_logical_device(VkPhysicalDevice physical_device, uint32_t queue_count, VkQueueFlagBits* queue_flags, uint32_t* queue_indices, VkDevice* out_logical_device) {
     if(physical_device == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -40,9 +44,9 @@ VkResult create_logical_device(VkPhysicalDevice* physical_device, uint32_t queue
         .pNext = NULL
     };
 
-    VkResult result = VkCreateDevice(physical_device, device_create_info, NULL, out_logical_device);
+    VkResult result = vkCreateDevice(physical_device, &device_create_info, NULL, out_logical_device);
 
     free(queue_create_infos);
 
-    return result
+    return result;
 }

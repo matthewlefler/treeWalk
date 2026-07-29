@@ -1,6 +1,9 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "../../utilities/logger/logger.h"
+#include "../vulkan_xml/vulkan_structure.h"
+#include "../log_utilities.h"
 
 #include "physical_devices.h"
 
@@ -31,14 +34,14 @@ uint32_t* physical_device_queue_families_supports(VkPhysicalDevice device, uint3
         for(uint32_t j = 0; j < queue_family_properties_count; ++j) {
             VkQueueFamilyProperties queue_family_property = queue_family_properties[j];
     
-            if(queue_family_properties->queueFlags & flag == flag) {
+            if((queue_family_properties->queueFlags & flag) == flag) {
                 support = 1;
                 queue_indices[i] = j;
             }
         }
     
         if(!support) {
-            char* flags_string = to_string_VkQueueFlagBits(flags);
+            char* flags_string = to_string_VkQueueFlagBits(*flags);
             log_message(LOG_LEVEL_DEBUG, "%s does not support %s", device_name, flags_string);
             free(flags_string);
 
@@ -52,30 +55,14 @@ uint32_t* physical_device_queue_families_supports(VkPhysicalDevice device, uint3
     return queue_indices;
 }
 
-VkBool32 physical_device_supports_features(VkPhysicalDevice physical_device, VkPhysicalDeviceFeatures2* device_feature_requirements) {
-    VkPhysicalDeviceFeatures2 quieried;
+bool physical_device_supports_features(VkPhysicalDevice physical_device, VkPhysicalDeviceFeatures2* device_feature_requirements) {
+    VkPhysicalDeviceFeatures2* actual = copy_struct_chain(device_feature_requirements);
 
-    VkStructureType* current_struct = device_feature_requirements;
-    void** pNext = &device_feature_requirements->pNext;
-    while(*pNext != NULL) {
-        current_struct = (VkStructureType*) pNext;
-        switch (current_struct) {           
+    vkGetPhysicalDeviceFeatures2(physical_device, actual);
 
-            
-            default:
-                log_message(LOG_LEVEL_ERROR, "in function \"physical_device_supports_features\" structure not supported");
-                return VK_FALSE;
-                break;
-        }
-    }
+    bool return_val = compare_struct_chain(actual, device_feature_requirements);
 
-    vkGetPhysicalDeviceFeatures2(physical_device, quieried);
+    free_struct_chain(actual);
 
-    VkStructureType* current_struct = device_feature_requirements;
-    void* pNext = NULL;
-    do {
-        
-
-        pNext = (void*) (current_struct + 1);
-    } while (pNext != NULL);
+    return return_val;
 }

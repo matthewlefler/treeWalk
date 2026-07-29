@@ -9,6 +9,9 @@ void set_pNext(void* structure, void* addr) {
 void* get_pNext(void* structure) {
     return (((VkStructureType*) structure) + 1);
 }
+VkStructureType get_sType(void* structure) {
+    return *(VkStructureType*) structure;
+}
 
 void* copy_struct_chain(void* start) {
     void* current_copied_struct = NULL;
@@ -41,25 +44,25 @@ void free_struct_chain(void* start) {
     }
 }
 
-bool compare_struct_chain(void* a, void* b) {
-    void* current_a = a;
-    void* current_b = b;
+bool compare_struct_chain(void* actual, void* requirements) {
+    void* current_actual = actual;
+    void* current_requirements = requirements;
     
     // walk the structure chain,
-    while(current_a != NULL && current_b != NULL) {
-        if(!compare_structure(current_a, current_b)) {
+    while(current_actual != NULL && current_requirements != NULL) {
+        if(!compare_structure(current_actual, current_requirements)) {
             return false;
         }
 
-        current_a = get_pNext(current_a);
-        current_b = get_pNext(current_b);
+        current_actual = get_pNext(current_actual);
+        current_requirements = get_pNext(current_requirements);
+    }
 
-        if( // one structure chain is done while the other is not
-            (current_a == NULL && current_b != NULL) ||
-            (current_a != NULL && current_b == NULL)
-        ) {
-            return false;
-        }
+    if( // one structure chain is done while the other is not
+        (current_actual == NULL && current_requirements != NULL) ||
+        (current_actual != NULL && current_requirements == NULL)
+    ) {
+        return false;
     }
 
     return true;

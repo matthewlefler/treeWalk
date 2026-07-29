@@ -150,7 +150,13 @@ VkResult create_debug_messenger(Renderer* renderer) {
     }
 }
 
-VkResult vulkan_renderer_init(Renderer* renderer, uint32_t (*physical_device_score_function)(VkPhysicalDevice), uint32_t queue_flags_count, VkQueueFlagBits *queue_flags) {
+VkResult vulkan_renderer_init(
+    Renderer* renderer, 
+    uint32_t (*physical_device_score_function)(VkPhysicalDeviceProperties2), 
+    VkPhysicalDeviceFeatures2 *device_feature_requirements, 
+    uint32_t queue_flags_count, 
+    VkQueueFlagBits *queue_flags
+) {
     window_create(600, 800, &renderer->window, "TreeWalk");
 
     vulkan_create_instance(renderer);
@@ -161,7 +167,7 @@ VkResult vulkan_renderer_init(Renderer* renderer, uint32_t (*physical_device_sco
 #endif
 
     renderer->devices = malloc(sizeof(Device) * 1);
-    return device_get(renderer->vk_instance, physical_device_score_function, queue_flags_count, queue_flags, renderer->devices);
+    return device_get(renderer->vk_instance, physical_device_score_function, device_feature_requirements, queue_flags_count, queue_flags, renderer->devices);
 }
 
 VkResult vulkan_renderer_run(Renderer* renderer) {

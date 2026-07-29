@@ -27,4 +27,11 @@ void* copy_struct_chain(void* start);
  */
 void free_struct_chain(void* start);
 
+/**
+ * compares two structure chain and checks if a, meet the requirements b
+ * 
+ * @return `true` if the requirements are met, `false` otherwise
+ */
+bool compare_struct_chain(void* a, void* b);
+
 #endif

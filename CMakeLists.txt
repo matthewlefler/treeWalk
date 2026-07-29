@@ -11,28 +11,46 @@ add_compile_options(-g -Wall -Wextra)
 # Define the executable target
 add_executable(vulkan_main)
 
-# List out your source files explicitly (Modern CMake Best Practice)
-# This perfectly mimics your old Makefile wildcards
+# source files
 target_sources(vulkan_main PRIVATE
-    # Core framework
     src/main.c
-    
-    # Nested modules (add paths to your actual files)
-    # Hint: You can use file(GLOB_RECURSE SRCS "src/*.c" "cglm/src/*.c") 
-    # if you strongly prefer automated discovery over explicit lists!
+
+    src/vulkan_renderer/extensions.c
+    src/vulkan_renderer/layers.c
+    src/vulkan_renderer/log_utilities.c
+    src/vulkan_renderer/render.c
+    src/vulkan_renderer/window.c
+    src/vulkan_renderer/devices/devices.c
+    src/vulkan_renderer/devices/logical_devices.c
+    src/vulkan_renderer/devices/physical_devices.c
+    src/vulkan_renderer/vulkan_xml/vulkan_xml.c
+    src/vulkan_renderer/vulkan_xml/vulkan_structure.c
+
+    src/utilities/logger/logger.c
+
+    src/trees/branch.c
+    src/trees/display.c
+    src/trees/leaf.c
+    src/trees/meristem.c
+    src/trees/tree_settings.c
+    src/trees/tree.c
+
+    src/random/xoshiro256.c
+
+    src/cJSON/cJSON.c
 )
 
 # Find System Dependencies
 find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
-# Include directories (replaces your old -I paths)
+# Include directories
 target_include_directories(vulkan_main PRIVATE 
     src
     cglm/include
 )
 
-# Link libraries (replaces your -L and -l flags, including math library -lm)
+# Link libraries
 target_link_libraries(vulkan_main PRIVATE 
     Vulkan::Vulkan 
     glfw

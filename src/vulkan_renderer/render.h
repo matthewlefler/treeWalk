@@ -16,7 +16,13 @@ typedef struct Renderer {
     Device* devices;
 } Renderer;
 
-VkResult vulkan_renderer_init(Renderer* renderer, uint32_t (*physical_device_score_function)(VkPhysicalDevice), uint32_t queue_flags_count, VkQueueFlagBits *queue_flags);
+VkResult vulkan_renderer_init(
+    Renderer* renderer, 
+    uint32_t (*physical_device_score_function)(VkPhysicalDeviceProperties2), 
+    VkPhysicalDeviceFeatures2 *device_feature_requirements, 
+    uint32_t queue_flags_count, 
+    VkQueueFlagBits *queue_flags
+);
 
 VkResult vulkan_renderer_run(Renderer* renderer);
 

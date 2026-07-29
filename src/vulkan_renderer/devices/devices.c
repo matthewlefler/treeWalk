@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "../../utilities/logger/logger.h"
 
 #include "devices.h"
@@ -5,11 +7,24 @@
 #include "physical_devices.h"
 #include "logical_devices.h"
 
-uint32_t default_score_func(VkPhysicalDevice device) {
+uint32_t default_score_func(VkPhysicalDeviceProperties2 device_properties) {
+    uint32_t driver_version = device_properties.properties.driverVersion;
+
+    if(driver_version >= VK_API_VERSION_1_4) {
+        return 2;
+    }
+
     return 1;
 }
 
-VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice), VkPhysicalDeviceFeatures2* device_feature_requirements, uint32_t queue_flags_count, VkQueueFlagBits* queue_flags, Device* out_device) {
+VkResult device_get(
+    VkInstance instance, 
+    uint32_t (*score_func)(VkPhysicalDeviceProperties2), 
+    VkPhysicalDeviceFeatures2* device_feature_requirements, 
+    uint32_t queue_flags_count, 
+    VkQueueFlagBits* queue_flags, 
+    Device* out_device
+) {
     if(instance == NULL) {
         log_message(LOG_LEVEL_ERROR, "instance is null");
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -42,11 +57,11 @@ VkResult device_get(VkInstance instance, uint32_t (*score_func)(VkPhysicalDevice
         };
         vkGetPhysicalDeviceProperties2(physical_device, &physical_device_properties);
 
-        uint32_t score = score_func(physical_device);
+        uint32_t score = score_func(physical_device_properties);
         
         // get indices of the required queues
         uint32_t* queue_indices = physical_device_queue_families_supports(physical_device, queue_flags_count, queue_flags, physical_device_properties.properties.deviceName);
-        VkBool32 has_requried_properties = physical_device_supports_features(physical_device, device_feature_requirements);
+        bool has_requried_properties = physical_device_supports_features(physical_device, device_feature_requirements);
 
         if(
             score > max_score && 
