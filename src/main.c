@@ -4,101 +4,65 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <vulkan/vk_enum_string_helper.h>
-#include <vulkan/vulkan.h>
+#include <raylib.h>
 
 #include "trees/tree.h"
 #include "trees/display.h"
 
-#include "vulkan_renderer/render.h"
-#include "vulkan_renderer/log_utilities.h"
-
 #include "utilities/logger/logger.h"
-
-uint32_t score_physical_device(VkPhysicalDeviceProperties2 device_properties_2) {
-    return 1 + \
-        (device_properties_2.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) * 0b100;
-}
 
 int main(int argc, char** argv)
 {
     set_log_level(LOG_LEVEL_VERBOSE);
 
-    // load_settings("data/trees/");    
-    // Tree tree = new_tree_from_name("test", 0x1ABC123115812754);
+    load_settings("../data/trees/");    
+    Tree tree = new_tree_from_name("test", 0x1ABC123115812754);
 
-    // size_t num = 5;
-    // Tree trees[num];
-    // for(size_t i = 0; i < num; ++i) {
-    //     trees[i] = copy_tree(&tree);
-    //     trees[i].transform.translation.x = i * i;
-    //     update_tree(&tree);
+    size_t num = 5;
+    Tree trees[num];
+    for(size_t i = 0; i < num; ++i) {
+        trees[i] = copy_tree(&tree);
+        trees[i].translation[0] = i * i;
+        update_tree(&tree);
 
-    //     printf("gen tree iter: %d\n", i);
+        printf("gen tree iter: %ld\n", i);
 
-    //     printf("\tleaf list len: %d\n", trees[i].leaves_len);
-    //     for(size_t j = 0; j < trees[i].meristems_len; ++j) {
-    //         Meristem l1 = trees[i].meristems[j];
-    //         for(size_t k = 0; k < trees[i].meristems_len; ++k) {
-    //             if(k == j) {continue;}
-    //             Meristem l2 = trees[i].meristems[k];
-    //             if(
-    //                 l1.transform.translation.x == l2.transform.translation.x &&
-    //                 l1.transform.translation.y == l2.transform.translation.y &&
-    //                 l1.transform.translation.z == l2.transform.translation.z &&
-    //                 l1.transform.rotation.x == l2.transform.rotation.x &&
-    //                 l1.transform.rotation.y == l2.transform.rotation.y &&
-    //                 l1.transform.rotation.z == l2.transform.rotation.z &&
-    //                 l1.transform.rotation.w == l2.transform.rotation.w
-    //             ) {
-    //                 printf("found duplicate meristem %d, and %d\n", j, k);
-    //             }
-    //         }
-    //     }
-    //     fflush(stdout);
-    // }
-    VkResult result;
+        printf("\tleaf list len: %ld\n", trees[i].leaves_len);
+        for(size_t j = 0; j < trees[i].meristems_len; ++j) {
+            Meristem l1 = trees[i].meristems[j];
+            for(size_t k = 0; k < trees[i].meristems_len; ++k) {
+                if(k == j) {continue;}
+                Meristem l2 = trees[i].meristems[k];
+                if(
+                    l1.translation[0] == l2.translation[0] &&
+                    l1.translation[1] == l2.translation[1] &&
+                    l1.translation[2] == l2.translation[2] &&
+                    l1.rotation[0] == l2.rotation[0] &&
+                    l1.rotation[1] == l2.rotation[1] &&
+                    l1.rotation[2] == l2.rotation[2] &&
+                    l1.rotation[3] == l2.rotation[3]
+                ) {
+                    printf("found duplicate meristem %ld, and %ld\n", j, k);
+                }
+            }
+        }
+        fflush(stdout);
+    }
 
-    // requirements
-        VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering = {
-            .dynamicRendering = VK_TRUE,
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
-        };
+    InitWindow(800, 450, "raylib example - basic window");
 
-        VkPhysicalDeviceVulkan11Features vulkan_11 = {
-            .shaderDrawParameters = VK_TRUE,
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
-        };
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+            ClearBackground(BLACK);
 
-        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extended_dynamic_state = {
-            .extendedDynamicState = VK_TRUE,
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
-        };
+            for (size_t i = 0; i < num; i++) {
+                debug_draw_tree(trees + i);
+            }
+            
+        EndDrawing();
+    }
 
-        VkPhysicalDeviceFeatures2 device_features_2 = {
-            .features.geometryShader = VK_TRUE,
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-        };
-        
-        // chain of features to grab
-        device_features_2.pNext = &dynamic_rendering;
-        dynamic_rendering.pNext = &vulkan_11;
-        vulkan_11.pNext = &extended_dynamic_state;
-        extended_dynamic_state.pNext = NULL;
-
-        VkQueueFlagBits flagbits = VK_QUEUE_GRAPHICS_BIT;
-
-    Renderer renderer;
-    result = vulkan_renderer_init(&renderer, &score_physical_device, &device_features_2, 1, &flagbits);
-    log_message(LOG_LEVEL_DEBUG, "init result: %s", string_VkResult(result));
-
-    result = vulkan_renderer_run(&renderer);
-    log_message(LOG_LEVEL_DEBUG, "run result: %s", string_VkResult(result));
-
-    result = vulkan_renderer_cleanup(&renderer);
-    log_message(LOG_LEVEL_DEBUG, "cleanup result: %s", string_VkResult(result));
-
-    return EXIT_SUCCESS;
+    CloseWindow();
 }
 
 #endif

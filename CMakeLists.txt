@@ -9,35 +9,24 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_compile_options(-g -Wall -Wextra)
 
 # Define the executable target
-add_executable(vulkan_main)
+add_executable(tree_main)
 
 # source files
-target_sources(vulkan_main PRIVATE
-    src/main.c
+target_sources(tree_main PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/main.c
 
-    src/vulkan_renderer/extensions.c
-    src/vulkan_renderer/layers.c
-    src/vulkan_renderer/log_utilities.c
-    src/vulkan_renderer/render.c
-    src/vulkan_renderer/window.c
-    src/vulkan_renderer/devices/devices.c
-    src/vulkan_renderer/devices/logical_devices.c
-    src/vulkan_renderer/devices/physical_devices.c
-    src/vulkan_renderer/vulkan_xml/vulkan_xml.c
-    src/vulkan_renderer/vulkan_xml/vulkan_structure.c
+    ${CMAKE_SOURCE_DIR}/src/utilities/logger/logger.c
 
-    src/utilities/logger/logger.c
+    ${CMAKE_SOURCE_DIR}/src/trees/branch.c
+    ${CMAKE_SOURCE_DIR}/src/trees/display.c
+    ${CMAKE_SOURCE_DIR}/src/trees/leaf.c
+    ${CMAKE_SOURCE_DIR}/src/trees/meristem.c
+    ${CMAKE_SOURCE_DIR}/src/trees/tree_settings.c
+    ${CMAKE_SOURCE_DIR}/src/trees/tree.c
 
-    src/trees/branch.c
-    src/trees/display.c
-    src/trees/leaf.c
-    src/trees/meristem.c
-    src/trees/tree_settings.c
-    src/trees/tree.c
+    ${CMAKE_SOURCE_DIR}/src/random/xoshiro256.c
 
-    src/random/xoshiro256.c
-
-    src/cJSON/cJSON.c
+    ${CMAKE_SOURCE_DIR}/src/cJSON/cJSON.c
 )
 
 # Find System Dependencies
@@ -45,20 +34,20 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
 # Include directories
-target_include_directories(vulkan_main PRIVATE 
-    src
-    cglm/include
+target_include_directories(tree_main PRIVATE 
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/include/cglm/include
 )
 
 # Link libraries
-target_link_libraries(vulkan_main PRIVATE 
-    Vulkan::Vulkan 
+target_link_libraries(tree_main PRIVATE 
+    raylib
     glfw
     m
 )
 
 # Set output directory matching your old 'build' setup
-set_target_properties(vulkan_main PROPERTIES
+set_target_properties(tree_main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     OUTPUT_NAME "main"
 )

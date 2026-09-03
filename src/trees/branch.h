@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "../../cglm/include/cglm/cglm.h"
+#include <cglm/cglm.h>
 
 typedef struct Branch {
     vec3 start_point;

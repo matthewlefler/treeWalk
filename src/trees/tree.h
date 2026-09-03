@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "../../cglm/include/cglm/cglm.h"
+#include <cglm/cglm.h>
 
 #include "../random/xoshiro256.h"
 
@@ -32,7 +32,7 @@ typedef struct Tree {
     
     TreeSettings* tree_settings;
 
-    uint64_t seed;
+    uint64_t seed; // initial seed, to initialize the pesudo-random number generator
     Xoshiro256ssState prand_state; // pesudo-random number generator state
 } Tree;
 

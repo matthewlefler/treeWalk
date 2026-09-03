@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../transform.h"
+#include <raylib.h>
 
 #include "branch.h"
 #include "meristem.h"
@@ -10,7 +10,12 @@
 #include "display.h"
 
 void debug_draw_tree(Tree* tree) {
-    Transform tree_transform = tree->transform;
+    TreeTransform tree_transform;
+
+    glm_vec3_copy(tree->translation, tree_transform.translation);
+    glm_vec3_copy(tree->rotation, tree_transform.rotation);
+    glm_vec3_copy(tree->scale, tree_transform.scale);
+    
     for(size_t i = 0; i < tree->branches_len; ++i) {
         debug_draw_branch(tree->branches + i, tree_transform);
     }
@@ -26,7 +31,7 @@ void debug_draw_tree(Tree* tree) {
     // printf("draw done\n");
 }
 
-void debug_draw_branch(Branch* branch_addr, Transform parent_transform) {
+void debug_draw_branch(Branch* branch_addr, TreeTransform parent_transform) {
     /*
     typedef struct Branch {
         vec3 start_point;
@@ -39,13 +44,29 @@ void debug_draw_branch(Branch* branch_addr, Transform parent_transform) {
     */
     Branch branch = *branch_addr;
 
-    vec3 p1 = Vector3Add(Vector3RotateByQuaternion(branch.start_point, parent_transform.rotation), parent_transform.translation);
-    vec3 p2 = Vector3Add(Vector3RotateByQuaternion(branch.end_point, parent_transform.rotation), parent_transform.translation);
+    
+    vec3 p1; 
+    vec3 p2;
+    glm_quat_rotatev(parent_transform.rotation, branch.start_point, p1);
+    glm_quat_rotatev(parent_transform.rotation, branch.end_point, p2);
+    glm_vec3_add(p1, parent_transform.translation, p1);
+    glm_vec3_add(p2, parent_transform.translation, p2);
 
-    DrawLine3D(p1, p2, WHITE);
+    Vector3 ray_p1 = {
+        .x = p1[0],
+        .y = p1[1],
+        .z = p1[2],
+    };
+    Vector3 ray_p2 = {
+        .x = p2[0],
+        .y = p2[1],
+        .z = p2[2],
+    };
+
+    DrawLine3D(ray_p1, ray_p2, WHITE);
 }
 
-void debug_draw_meristem(Meristem* meristem_addr, Transform parent_transform) {
+void debug_draw_meristem(Meristem* meristem_addr, TreeTransform parent_transform) {
     /*
     enum MeristemState {
         BUD,
@@ -67,31 +88,62 @@ void debug_draw_meristem(Meristem* meristem_addr, Transform parent_transform) {
         color = BLUE;
     }
 
-    vec3 offset = Vector3RotateByQuaternion((vec3) {0, 0.1, 0}, meristem.transform.rotation);
+    vec3 offset;
+    glm_quat_rotatev(meristem.rotation, (vec3) {0, 0.1, 0}, offset);
     
-    vec3 p1 = Vector3Add(Vector3RotateByQuaternion(meristem.transform.translation, parent_transform.rotation), parent_transform.translation);
-    vec3 p2 = Vector3Add(Vector3RotateByQuaternion(Vector3Add(meristem.transform.translation, offset), parent_transform.rotation), parent_transform.translation);
+    vec3 p1;
+    vec3 p2;
 
-    // printf("(%f, %f, %f) -> (%f, %f, %f)\n", 
-    //     p1.x, p1.y, p1.z,
-    //     p2.x, p2.y, p2.z
-    // );
+    glm_vec3_add(meristem.translation, offset, p1);
+    glm_quat_rotatev(parent_transform.rotation, p1, p1);
+    glm_quat_rotatev(parent_transform.rotation, meristem.translation, p2);
+    glm_vec3_add(p1, parent_transform.translation, p1);
+    glm_vec3_add(p2, parent_transform.translation, p2);
 
-    DrawLine3D(p1, p2, color);
+    Vector3 ray_p1 = {
+        .x = p1[0],
+        .y = p1[1],
+        .z = p1[2],
+    };
+    Vector3 ray_p2 = {
+        .x = p2[0],
+        .y = p2[1],
+        .z = p2[2],
+    };
+
+    DrawLine3D(ray_p1, ray_p2, color);
 }
 
-void debug_draw_leaf(Leaf* leaf_addr, Transform parent_transform) {
-    vec3 p1 = Vector3Add(Vector3RotateByQuaternion(leaf_addr->points[0], parent_transform.rotation), parent_transform.translation);
-    vec3 p2 = Vector3Add(Vector3RotateByQuaternion(leaf_addr->points[1], parent_transform.rotation), parent_transform.translation);
-    vec3 p3 = Vector3Add(Vector3RotateByQuaternion(leaf_addr->points[2], parent_transform.rotation), parent_transform.translation);
+void debug_draw_leaf(Leaf* leaf_addr, TreeTransform parent_transform) {
+    vec3 p1;
+    vec3 p2;
+    vec3 p3;
 
-    // printf("drawing leaf: p1 (%f, %f, %f) p2 (%f, %f, %f) p3 (%f, %f, %f)\n",
-    //     p1.x, p1.y, p1.z,
-    //     p2.x, p2.y, p2.z,
-    //     p3.x, p3.y, p3.z
-    // );
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[0], p1);
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[1], p2);
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[2], p3);
 
-    DrawLine3D(p1, p2, DARKGREEN);
-    DrawLine3D(p2, p3, DARKGREEN);
-    DrawLine3D(p3, p1, DARKGREEN);
+    glm_vec3_add(p1, parent_transform.translation, p1);
+    glm_vec3_add(p2, parent_transform.translation, p2);
+    glm_vec3_add(p3, parent_transform.translation, p3);
+
+    Vector3 ray_p1 = {
+        .x = p1[0],
+        .y = p1[1],
+        .z = p1[2],
+    };
+    Vector3 ray_p2 = {
+        .x = p2[0],
+        .y = p2[1],
+        .z = p2[2],
+    };
+    Vector3 ray_p3 = {
+        .x = p3[0],
+        .y = p3[1],
+        .z = p3[2],
+    };
+
+    DrawLine3D(ray_p1, ray_p2, DARKGREEN);
+    DrawLine3D(ray_p2, ray_p3, DARKGREEN);
+    DrawLine3D(ray_p3, ray_p1, DARKGREEN);
 }

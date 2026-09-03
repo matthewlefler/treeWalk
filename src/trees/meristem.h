@@ -1,7 +1,7 @@
 #ifndef MERISTEM_H
 #define MERISTEM_H
 
-#include "../../cglm/include/cglm/cglm.h"
+#include <cglm/cglm.h>
 
 enum MeristemState {
     BUD,
