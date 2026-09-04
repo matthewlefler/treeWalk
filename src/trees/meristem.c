@@ -1,4 +1,4 @@
-#include "../../cglm/include/cglm/cglm.h"
+#include <cglm/cglm.h>
 
 #include "meristem.h"
 

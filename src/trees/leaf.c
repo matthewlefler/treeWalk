@@ -3,9 +3,9 @@
 Leaf create_leaf(vec3 p1, vec3 p2, vec3 p3) {
     Leaf leaf;
 
-    glm_vec3_copy(p1, leaf.points[0]);
-    glm_vec3_copy(p2, leaf.points[1]);
-    glm_vec3_copy(p3, leaf.points[2]);
+    glm_vec3_copy(p1, leaf.vertices[0]);
+    glm_vec3_copy(p2, leaf.vertices[1]);
+    glm_vec3_copy(p3, leaf.vertices[2]);
 
     return leaf;
 }

@@ -43,7 +43,6 @@ void debug_draw_branch(Branch* branch_addr, TreeTransform parent_transform) {
     } Branch;
     */
     Branch branch = *branch_addr;
-
     
     vec3 p1; 
     vec3 p2;
@@ -119,9 +118,9 @@ void debug_draw_leaf(Leaf* leaf_addr, TreeTransform parent_transform) {
     vec3 p2;
     vec3 p3;
 
-    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[0], p1);
-    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[1], p2);
-    glm_quat_rotatev(parent_transform.rotation, leaf_addr->points[2], p3);
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->vertices[0], p1);
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->vertices[1], p2);
+    glm_quat_rotatev(parent_transform.rotation, leaf_addr->vertices[2], p3);
 
     glm_vec3_add(p1, parent_transform.translation, p1);
     glm_vec3_add(p2, parent_transform.translation, p2);

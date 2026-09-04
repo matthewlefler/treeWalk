@@ -7,7 +7,7 @@
 
     "gravity_tropism": 1.0,
     "horizontal_when_shaded_tropism": 1.0,
-    "to_light_tropism": 1.0,
-    "random_tropism": 0.1,
+    "to_light_tropism": 0.0,
+    "random_tropism": 0.8,
     "twist_tropism": 0.0
 }

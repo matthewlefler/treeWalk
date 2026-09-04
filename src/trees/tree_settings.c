@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #endif
 
-
 #include "../cJSON/cJSON.h"
 
 #include "tree_settings.h"
@@ -166,6 +165,8 @@ void load_settings(char* dir) {
         } else {
             printf("not loaded:      %s\n", de->d_name);
         }
+
+        free(path);
     }
     printf("done\n");
 

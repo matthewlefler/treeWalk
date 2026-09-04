@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../../cglm/include/cglm/cglm.h"
+#include <cglm/cglm.h>
 
 #include "../random/xoshiro256.h"
 
@@ -15,7 +15,6 @@
 #include "branch.h"
 #include "meristem.h"
 
-
 #define INIT_SIZE 10
 
 Tree new_tree_from_name(char* name, uint64_t seed) {
@@ -24,6 +23,8 @@ Tree new_tree_from_name(char* name, uint64_t seed) {
     glm_vec3_copy(GLM_VEC3_ZERO, tree.translation);
     glm_vec3_copy(GLM_VEC3_ONE, tree.scale);
     glm_quat_copy(GLM_QUAT_IDENTITY, tree.rotation);
+
+    tree.bounding_volume_hierarchy = create_empty_bvh();
 
     tree.branches_len = 0;
     tree.branches_alloc_size = INIT_SIZE;
@@ -53,6 +54,8 @@ constexpr uint64_t bud_die_chance = ((((uint64_t) 2 << 63) - 1) / 2);
 void update_tree(Tree* tree) {
     update_meristems(tree);
     create_leaves(tree);
+    free_bvh(&tree->bounding_volume_hierarchy);
+    tree->bounding_volume_hierarchy = build_bvh(tree->leaves_len, tree->leaves);
 }
 
 void create_leaves(Tree* tree) {
@@ -176,7 +179,7 @@ void update_meristems(Tree* tree) {
 
             // add new branch
             add_branch(tree, create_branch(
-                meristem.translation, 
+                meristem.translation,
                 new_meristem_translation
             ));
 
@@ -187,7 +190,7 @@ void update_meristems(Tree* tree) {
             glm_quat_mul(q1, q2, q1);
             // add new bud
             add_meristem(tree, create_meristem(
-                new_meristem_translation, 
+                new_meristem_translation,
                 q1,
                 BUD
             ));
@@ -206,6 +209,8 @@ void add_branch(Tree* tree, Branch branch) {
         tree->branches_alloc_size = tree->branches_alloc_size << 1;
         tree->branches = realloc(tree->branches, sizeof(Branch) * tree->branches_alloc_size);
     }
+    
+    // printf("adding branch, len %ld, alloc len %ld, ptr %p\n", tree->branches_len, tree->branches_alloc_size, tree->branches);
 
     tree->branches[tree->branches_len] = branch;
     ++tree->branches_len;
@@ -242,7 +247,16 @@ Tree copy_tree(Tree* tree) {
     memcpy(new_tree.meristems, tree->meristems, sizeof(Meristem) * tree->meristems_len);
     memcpy(new_tree.leaves, tree->leaves, sizeof(Leaf) * tree->leaves_len);
 
+    new_tree.bounding_volume_hierarchy = copy_bvh(&tree->bounding_volume_hierarchy);
+
     return new_tree;
+}
+
+void free_tree(Tree* tree) {
+    free_bvh(&tree->bounding_volume_hierarchy);
+    free(tree->branches);
+    free(tree->meristems);
+    free(tree->leaves);
 }
 
 #endif

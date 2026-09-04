@@ -3,9 +3,9 @@
 
 #include <cglm/cglm.h>
 
-typedef struct Leaf {
-    vec3 points[3];
-} Leaf;
+#include "../raytracing/triangle.h"
+
+typedef Triangle Leaf;
 
 Leaf create_leaf(vec3 p1, vec3 p2, vec3 p3);
 

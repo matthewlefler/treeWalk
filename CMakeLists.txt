@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Compile flags for warnings and debugging
 add_compile_options(-g -Wall -Wextra)
+add_link_options(-fsanitize=address)
 
 # Define the executable target
 add_executable(tree_main)
@@ -23,6 +24,10 @@ target_sources(tree_main PRIVATE
     ${CMAKE_SOURCE_DIR}/src/trees/meristem.c
     ${CMAKE_SOURCE_DIR}/src/trees/tree_settings.c
     ${CMAKE_SOURCE_DIR}/src/trees/tree.c
+
+    ${CMAKE_SOURCE_DIR}/src/raytracing/aabb.c
+    ${CMAKE_SOURCE_DIR}/src/raytracing/bvh.c
+    ${CMAKE_SOURCE_DIR}/src/raytracing/display.c
 
     ${CMAKE_SOURCE_DIR}/src/random/xoshiro256.c
 
