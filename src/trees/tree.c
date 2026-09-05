@@ -54,6 +54,7 @@ constexpr uint64_t bud_die_chance = ((((uint64_t) 2 << 63) - 1) / 2);
 void update_tree(Tree* tree) {
     update_meristems(tree);
     create_leaves(tree);
+    
     free_bvh(&tree->bounding_volume_hierarchy);
     tree->bounding_volume_hierarchy = build_bvh(tree->leaves_len, tree->leaves);
 }

@@ -15,12 +15,16 @@
 
 int main(int argc, char** argv)
 {
+    size_t num = 3;
+    if(argc == 2) {
+        num = atoi(argv[1]);
+    }
+
     set_log_level(LOG_LEVEL_VERBOSE);
 
     load_settings("../data/trees/");    
     Tree tree = new_tree_from_name("test", 0x1ABC123115812754);
 
-    size_t num = 7;
     Tree trees[num];
     for(size_t i = 0; i < num; ++i) {
         trees[i] = copy_tree(&tree);
@@ -49,8 +53,28 @@ int main(int argc, char** argv)
             //     }
             // }
         }
-        fflush(stdout);
     }
+    
+    Triangle test_triangles[] = {
+        {.vertices = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}},
+
+        {.vertices = {{0.0f, 0.25f, 0.25f},  {0.0f, 0.25f, 0.25f},  {0.0f, 0.25f, 0.25f}}},
+        {.vertices = {{0.25f, 0.0f, 0.25f},  {0.25f, 0.0f, 0.25f},  {0.25f, 0.0f, 0.25f}}},
+        {.vertices = {{0.25f, 0.25f, 0.0f},  {0.25f, 0.25f, 0.0f},  {0.25f, 0.25f, 0.0f}}},
+        {.vertices = {{0.25f, 0.25f, 0.25f}, {0.25f, 0.25f, 0.25f}, {0.25f, 0.25f, 0.25f}}},
+
+        {.vertices = {{0.0f, 0.75f, 0.75f},  {0.0f, 0.75f, 0.75f},  {0.0f, 0.75f, 0.75f}}},
+        {.vertices = {{0.75f, 0.0f, 0.75f},  {0.75f, 0.0f, 0.75f},  {0.75f, 0.0f, 0.75f}}},
+        {.vertices = {{0.75f, 0.75f, 0.0f},  {0.75f, 0.75f, 0.0f},  {0.75f, 0.75f, 0.0f}}},
+        {.vertices = {{0.75f, 0.75f, 0.75f}, {0.75f, 0.75f, 0.75f}, {0.75f, 0.75f, 0.75f}}},
+
+        {.vertices = {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}}
+    };
+
+    printf("----------------------------------building-test--------------------------------------------------------------------\n");
+    BVH test_bvh = build_bvh(sizeof(test_triangles) / sizeof(Triangle), test_triangles);
+    debug_print_bvh(&test_bvh);
+    printf("--------------------------------------test-------------------------------------------------------------------------\n");
 
     // create camera object
     Camera camera = { 0 };
@@ -89,7 +113,8 @@ int main(int argc, char** argv)
                         debug_draw_tree(&trees[i]);
                         debug_draw_bvh(trees[i].bounding_volume_hierarchy, trees[i].translation);
                     }
-                       
+
+                    debug_draw_bvh(test_bvh, (vec3) {0.0f, 0.0f, 4.0f});
  
                 EndMode3D();
  
@@ -104,6 +129,8 @@ int main(int argc, char** argv)
     }
 
     free_tree(&tree);
+
+    free_bvh(&test_bvh);
 
     free_tree_settings();
 }

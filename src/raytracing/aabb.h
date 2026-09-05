@@ -14,6 +14,8 @@ typedef struct AABB {
 
 AABB get_aabb(size_t triangle_array_len, Triangle triangle_array[triangle_array_len]);
 
+AABB get_aabb_with_indirection(size_t indirection_array_start, size_t indirection_array_len, size_t indirection_array[], Triangle triangle_array[]);
+
 int get_long_axis(AABB aabb);
 
 #endif
