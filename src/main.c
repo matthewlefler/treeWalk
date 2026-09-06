@@ -1,6 +1,3 @@
-#ifndef MAIN_C
-#define MAIN_C
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,6 +9,8 @@
 #include "raytracing/display.h"
 
 #include "utilities/logger/logger.h"
+
+#include "../include/TracyClient/tracy/TracyC.h"
 
 int main(int argc, char** argv)
 {
@@ -53,6 +52,7 @@ int main(int argc, char** argv)
             //     }
             // }
         }
+        TracyCFrameMark
     }
     
     Triangle test_triangles[] = {
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     printf("----------------------------------building-test--------------------------------------------------------------------\n");
     BVH test_bvh = build_bvh(sizeof(test_triangles) / sizeof(Triangle), test_triangles);
     debug_print_bvh(&test_bvh);
-    printf("--------------------------------------test-------------------------------------------------------------------------\n");
+    printf("------------------------------------end--test----------------------------------------------------------------------\n");
 
     // create camera object
     Camera camera = { 0 };
@@ -89,10 +89,24 @@ int main(int argc, char** argv)
     Vector3 z = (Vector3) {-2, 0, 1};
 
     InitWindow(1600, 1000, "TreeWalk | raylib");
+    SetExitKey(KEY_NULL);
 
     DisableCursor();
+    bool cursor_enabled = true;
     while (!WindowShouldClose()) {        
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+        if(IsKeyPressed(KEY_ESCAPE)) {
+            cursor_enabled = !cursor_enabled;
+
+            if(!cursor_enabled) {
+                EnableCursor();
+            } else {
+                DisableCursor();
+            }
+        }
+
+        if(cursor_enabled) {
+            UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+        }
         
         //----------------------------------------------------------------------------------
         // Draw
@@ -134,5 +148,3 @@ int main(int argc, char** argv)
 
     free_tree_settings();
 }
-
-#endif

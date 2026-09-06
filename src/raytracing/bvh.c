@@ -88,15 +88,13 @@ BVH build_bvh(size_t geometry_length, Triangle geometry[geometry_length]) {
     size_t* stack = malloc(sizeof(size_t) * stack_alloc_size);
     stack[0] = bvh.root_node_index; 
 
-    size_t minimum_triangles = 2;
-
     //  let stack = init_bvh_node
     //  while stack not empty:
     //      pop
     //      get split plane
     //      split array
-    //      for child in children:
-    //          if requirement not met:
+    //      if requirement not met: // if one side of split is not empty
+    //          for child in children:
     //              add child to stack 
     size_t index;
     BVHNode node;
